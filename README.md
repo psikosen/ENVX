@@ -11,56 +11,7 @@ For detailed instructions on using PAOP, please refer to the following documenta
 
 ## Overview
 PAOP is a platform for orchestrating AI agents in a distributed environment.
-
-## Issues Resolution
-
-### Import Error
-The application was encountering an import error:
-```
-ImportError: cannot import name 'OrchestratorClient' from 'src.agent_framework.orchestrator'
-```
-
-This occurred because:
-1. `src/external_interface/api.py` was trying to import `OrchestratorClient` from `src.agent_framework.orchestrator`
-2. The class `OrchestratorClient` was defined in `src/agent_framework/orchestrator_client.py`, not in `orchestrator.py`
-
-#### Solution
-The issue was resolved by adding an import statement in `orchestrator.py` to import and re-export the `OrchestratorClient` class:
-
-```python
-# Import and re-export the OrchestratorClient to fix the circular import issue
-from .orchestrator_client import OrchestratorClient
-```
-
-### Async Error
-After fixing the import error, the application encountered an event loop error:
-```
-RuntimeError: no running event loop
-```
-
-This occurred because:
-1. The `OrchestratorClient` class was trying to start a background task in its constructor using `asyncio.create_task()`
-2. FastAPI was initializing the client in a non-asyncio context through its dependency system
-
-#### Solution
-The issue was resolved by:
-1. Refactoring the `OrchestratorClient` class to use proper async initialization
-2. Implementing a singleton pattern with async initialization
-3. Updating the FastAPI dependency to use the async initialization
-
-```python
-# In orchestrator_client.py
-async def get_client_instance():
-    """Get and initialize the client instance."""
-    await _client_instance.initialize()
-    return _client_instance
-
-# In api.py
-async def get_orchestrator_client():
-    """Dependency for getting the orchestrator client."""
-    return await get_client_instance()
-```
-
+  
 ## Running the Application
 
 ### Using Docker
