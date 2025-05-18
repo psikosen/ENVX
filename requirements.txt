@@ -1,0 +1,18 @@
+# Core dependencies
+pydantic>=2.0.0,<3.0.0
+pydantic-settings>=2.0.0,<3.0.0
+PyYAML>=6.0,<7.0
+
+# Testing
+pytest>=7.0.0,<8.0.0
+pytest-cov>=4.0.0,<5.0.0
+
+# Dev tools
+black>=23.0.0,<24.0.0
+isort>=5.12.0,<6.0.0
+flake8>=6.0.0,<7.0.0
+
+# These would be added as needed for specific features
+# requests>=2.30.0,<3.0.0
+# fastapi>=0.100.0,<0.101.0
+# uvicorn>=0.23.0,<0.24.0

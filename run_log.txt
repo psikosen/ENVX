@@ -1,0 +1,32 @@
+=== PAOP System Run Log (Sun May 18 18:25:59 EDT 2025) ===
+[INFO] Checking prerequisites...
+[INFO] Found Docker version: 27.5.1
+[INFO] Found Python virtual environment
+[INFO] Prerequisites check completed
+[INFO] Running in Docker mode...
+[INFO] Starting Docker container...
+docker: Error response from daemon: Conflict. The container name "/paop-container" is already in use by container "4e117f53530c17244364e97e7a66834ec102c98560a4d52eb689354b6beaec66". You have to remove (or rename) that container to be able to reuse that name.
+See 'docker run --help'.
+[ERROR] Failed to start Docker container
+Starting PAOP API server with config: /app/scripts/../config/api_config.json
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/app/src/external_interface/main.py", line 26, in <module>
+    from .api import app
+  File "/app/src/external_interface/api.py", line 42, in <module>
+    from ..agent_framework.orchestrator import OrchestratorClient
+ImportError: attempted relative import beyond top-level package
+Starting PAOP API server with config: /app/scripts/../config/api_config.json
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/app/src/external_interface/main.py", line 26, in <module>
+    from .api import app
+  File "/app/src/external_interface/api.py", line 42, in <module>
+    from ..agent_framework.orchestrator import OrchestratorClient
+ImportError: attempted relative import beyond top-level package

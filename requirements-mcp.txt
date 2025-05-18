@@ -1,0 +1,8 @@
+# Requirements for DesktopCommanderMCP integration
+
+# Core NodeJS dependencies
+nodejs>=18.18.0
+
+# Python dependencies for MCP
+pydantic>=2.0.0,<3.0.0
+requests>=2.31.0

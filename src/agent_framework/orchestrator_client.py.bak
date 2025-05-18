@@ -1,0 +1,104 @@
+"""
+Orchestrator client for PAOP.
+
+This module provides a client for communicating with the PAOP orchestrator.
+"""
+import logging
+import asyncio
+from typing import Any, Dict, List, Optional
+
+from src.external_interface.models import (
+    CommandType,
+    CommandStatus,
+    ExternalCommandRequest,
+    ExternalCommandResponse,
+)
+
+logger = logging.getLogger(__name__)
+
+
+class OrchestratorClient:
+    """Client for communicating with the PAOP orchestrator."""
+    
+    def __init__(self, max_retries: int = 3, retry_delay: float = 0.5):
+        """Initialize the orchestrator client.
+        
+        Args:
+            max_retries: Maximum number of retries for failed commands
+            retry_delay: Delay between retries in seconds
+        """
+        self.max_retries = max_retries
+        self.retry_delay = retry_delay
+        self._command_queue = asyncio.Queue()
+        self._response_queues = {}
+        
+        # Start the command processor
+        self._start_command_processor()
+    
+    def _start_command_processor(self):
+        """Start the command processor task."""
+        asyncio.create_task(self._process_commands())
+    
+    async def _process_commands(self):
+        """Process commands from the queue."""
+        while True:
+            command, response_queue = await self._command_queue.get()
+            try:
+                # Process the command
+                logger.debug(f"Processing command: {command.command_id}")
+                response = await self._execute_command(command)
+                
+                # Put the response in the response queue
+                await response_queue.put(response)
+            except Exception as e:
+                logger.error(f"Error processing command: {str(e)}", exc_info=True)
+                # Create error response
+                error_response = ExternalCommandResponse(
+                    command_id=command.command_id,
+                    status=CommandStatus.FAILURE,
+                    error=f"Error processing command: {str(e)}",
+                )
+                await response_queue.put(error_response)
+            finally:
+                self._command_queue.task_done()
+    
+    async def _execute_command(self, command: ExternalCommandRequest) -> ExternalCommandResponse:
+        """Execute a command on the orchestrator.
+        
+        This is where the actual communication with the orchestrator happens.
+        In a real implementation, this would send the command to the orchestrator
+        and wait for the response.
+        """
+        # This is a placeholder for the actual implementation
+        # In a real implementation, this would communicate with the orchestrator
+        # using an appropriate protocol (e.g., message queue, HTTP, etc.)
+        
+        # Integrate with Developer B's agent framework here
+        from .orchestrator import process_command
+        return await process_command(command)
+    
+    async def send_command(self, command: ExternalCommandRequest) -> ExternalCommandResponse:
+        """Send a command to the orchestrator.
+        
+        Args:
+            command: The command to send
+            
+        Returns:
+            The response from the orchestrator
+        """
+        logger.info(f"Sending command to orchestrator: {command.command_type} (ID: {command.command_id})")
+        
+        # Create a response queue for this command
+        response_queue = asyncio.Queue()
+        self._response_queues[command.command_id] = response_queue
+        
+        # Put the command in the queue
+        await self._command_queue.put((command, response_queue))
+        
+        # Wait for the response
+        response = await response_queue.get()
+        
+        # Clean up
+        del self._response_queues[command.command_id]
+        
+        return response

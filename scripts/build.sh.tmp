@@ -1,0 +1,54 @@
+#!/bin/bash
+# Make this script executable with: chmod +x scripts/build.sh
+set -e
+
+# Build script for Pedantic Agent Orchestration Platform (PAOP)
+
+# Set up logging
+LOG_FILE="build_log.txt"
+echo "Starting build at $(date)" | tee $LOG_FILE
+
+# Make scripts executable
+echo "Making scripts executable..." | tee -a $LOG_FILE
+chmod +x scripts/setup.sh
+chmod +x src/main.py
+chmod +x src/supervisor.py
+
+# Create Python virtual environment if it doesn't exist
+if [ ! -d ".venv" ]; then
+    echo "Creating Python virtual environment..." | tee -a $LOG_FILE
+    python3 -m venv .venv
+fi
+
+# Activate virtual environment
+echo "Activating virtual environment..." | tee -a $LOG_FILE
+source .venv/bin/activate
+
+# Install dependencies
+echo "Installing dependencies..." | tee -a $LOG_FILE
+pip install -r requirements.txt | tee -a $LOG_FILE
+
+# Run linting
+echo "Running linting..." | tee -a $LOG_FILE
+if command -v flake8 &> /dev/null; then
+    flake8 src tests | tee -a $LOG_FILE
+else
+    echo "Warning: flake8 not installed, skipping linting" | tee -a $LOG_FILE
+fi
+
+# Run unit tests
+echo "Running unit tests..." | tee -a $LOG_FILE
+pytest tests/unit/ -v | tee -a $LOG_FILE
+
+# Check for MCP config
+if [ ! -f "config/mcp_config.yml" ]; then
+    echo "Warning: MCP configuration not found at config/mcp_config.yml" | tee -a $LOG_FILE
+fi
+
+echo "Build completed at $(date)" | tee -a $LOG_FILE
+
+# Return to the directory where the script was run from
+echo "Deactivating virtual environment..." | tee -a $LOG_FILE
+deactivate
+
+echo "Build completed successfully"

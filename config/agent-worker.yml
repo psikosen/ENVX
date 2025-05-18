@@ -1,0 +1,16 @@
+# Sample Agent Configuration
+
+# Agent identity
+agent_id: worker-1
+role: worker
+name: Worker Agent 1
+description: General-purpose worker agent
+
+# Tools configuration
+tools:
+  - tool_id: mcp-tool
+    tool_type: mcp
+    enabled: true
+    config:
+      # Tool-specific settings
+      timeout_seconds: 30

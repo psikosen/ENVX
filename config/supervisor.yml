@@ -1,0 +1,21 @@
+# PAOP Supervisor Configuration
+
+# Global settings
+mcp_config_path: /app/config/mcp_config.yml
+
+# Define agents to run in the container
+agents:
+  - agent_id: orchestrator-1
+    role: orchestrator
+    name: Main Orchestrator
+    description: Primary orchestrator agent for coordinating worker agents
+    
+  - agent_id: worker-1
+    role: worker
+    name: Worker Agent 1
+    description: General-purpose worker agent
+    
+  - agent_id: worker-2
+    role: worker
+    name: Worker Agent 2
+    description: General-purpose worker agent

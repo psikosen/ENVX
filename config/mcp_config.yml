@@ -1,0 +1,26 @@
+# MCP Configuration 
+
+# Basic configuration options
+mcp:
+  enabled: true  # Enable MCP by default
+  executable_path: /usr/local/bin/desktopcommander-mcp
+  config_path: /Users/psikosen/Documents/envx/config/mcp
+  timeout_seconds: 30
+  retry_count: 3
+  retry_delay_seconds: 2
+  
+  # Environment variables to set when calling MCP
+  environment_variables:
+    MCP_LOG_LEVEL: INFO
+    MCP_CONFIG_DIR: /Users/psikosen/Documents/envx/config/mcp
+    
+  # API key (should be injected via environment or Docker secrets in production)
+  # api_key: placeholder-key-DO-NOT-USE-IN-PRODUCTION
+
+# MCP Servers Configuration
+mcpServers:
+  desktop-commander:
+    command: npx
+    args:
+      - -y
+      - "@wonderwhy-er/desktop-commander"

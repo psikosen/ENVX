@@ -1,0 +1,1082 @@
+=== PAOP System Run Log (Sun May 18 18:18:40 EDT 2025) ===
+[INFO] Checking prerequisites...
+[INFO] Found Python version: 3.12.2
+[INFO] Found Docker version: 27.5.1
+[INFO] Prerequisites check completed
+[INFO] Setting up environment...
+[INFO] Set PAOP_API_KEY environment variable for local development
+[INFO] Making scripts executable...
+[INFO] Python virtual environment already exists
+[INFO] Activating virtual environment...
+[INFO] Installing dependencies...
+Requirement already satisfied: pydantic<3.0.0,>=2.0.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 2)) (2.11.4)
+Requirement already satisfied: pydantic-settings<3.0.0,>=2.0.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 3)) (2.9.1)
+Requirement already satisfied: PyYAML<7.0,>=6.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 4)) (6.0.2)
+Requirement already satisfied: pytest<8.0.0,>=7.0.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 7)) (7.4.4)
+Requirement already satisfied: pytest-cov<5.0.0,>=4.0.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 8)) (4.1.0)
+Requirement already satisfied: black<24.0.0,>=23.0.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 11)) (23.12.1)
+Requirement already satisfied: isort<6.0.0,>=5.12.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 12)) (5.13.2)
+Requirement already satisfied: flake8<7.0.0,>=6.0.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 13)) (6.1.0)
+Requirement already satisfied: annotated-types>=0.6.0 in ./.venv/lib/python3.12/site-packages (from pydantic<3.0.0,>=2.0.0->-r requirements.txt (line 2)) (0.7.0)
+Requirement already satisfied: pydantic-core==2.33.2 in ./.venv/lib/python3.12/site-packages (from pydantic<3.0.0,>=2.0.0->-r requirements.txt (line 2)) (2.33.2)
+Requirement already satisfied: typing-extensions>=4.12.2 in ./.venv/lib/python3.12/site-packages (from pydantic<3.0.0,>=2.0.0->-r requirements.txt (line 2)) (4.13.2)
+Requirement already satisfied: typing-inspection>=0.4.0 in ./.venv/lib/python3.12/site-packages (from pydantic<3.0.0,>=2.0.0->-r requirements.txt (line 2)) (0.4.0)
+Requirement already satisfied: python-dotenv>=0.21.0 in ./.venv/lib/python3.12/site-packages (from pydantic-settings<3.0.0,>=2.0.0->-r requirements.txt (line 3)) (1.1.0)
+Requirement already satisfied: iniconfig in ./.venv/lib/python3.12/site-packages (from pytest<8.0.0,>=7.0.0->-r requirements.txt (line 7)) (2.1.0)
+Requirement already satisfied: packaging in ./.venv/lib/python3.12/site-packages (from pytest<8.0.0,>=7.0.0->-r requirements.txt (line 7)) (25.0)
+Requirement already satisfied: pluggy<2.0,>=0.12 in ./.venv/lib/python3.12/site-packages (from pytest<8.0.0,>=7.0.0->-r requirements.txt (line 7)) (1.6.0)
+Requirement already satisfied: coverage>=5.2.1 in ./.venv/lib/python3.12/site-packages (from coverage[toml]>=5.2.1->pytest-cov<5.0.0,>=4.0.0->-r requirements.txt (line 8)) (7.8.0)
+Requirement already satisfied: click>=8.0.0 in ./.venv/lib/python3.12/site-packages (from black<24.0.0,>=23.0.0->-r requirements.txt (line 11)) (8.2.0)
+Requirement already satisfied: mypy-extensions>=0.4.3 in ./.venv/lib/python3.12/site-packages (from black<24.0.0,>=23.0.0->-r requirements.txt (line 11)) (1.1.0)
+Requirement already satisfied: pathspec>=0.9.0 in ./.venv/lib/python3.12/site-packages (from black<24.0.0,>=23.0.0->-r requirements.txt (line 11)) (0.12.1)
+Requirement already satisfied: platformdirs>=2 in ./.venv/lib/python3.12/site-packages (from black<24.0.0,>=23.0.0->-r requirements.txt (line 11)) (4.3.8)
+Requirement already satisfied: mccabe<0.8.0,>=0.7.0 in ./.venv/lib/python3.12/site-packages (from flake8<7.0.0,>=6.0.0->-r requirements.txt (line 13)) (0.7.0)
+Requirement already satisfied: pycodestyle<2.12.0,>=2.11.0 in ./.venv/lib/python3.12/site-packages (from flake8<7.0.0,>=6.0.0->-r requirements.txt (line 13)) (2.11.1)
+Requirement already satisfied: pyflakes<3.2.0,>=3.1.0 in ./.venv/lib/python3.12/site-packages (from flake8<7.0.0,>=6.0.0->-r requirements.txt (line 13)) (3.1.0)
+
+[notice] A new release of pip is available: 24.0 -> 25.1.1
+[notice] To update, run: pip install --upgrade pip
+[INFO] Installing the package in development mode...
+Obtaining file:///Users/psikosen/Documents/envx
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: envx
+  Building editable for envx (pyproject.toml): started
+  Building editable for envx (pyproject.toml): finished with status 'done'
+  Created wheel for envx: filename=envx-0.1.0-0.editable-py3-none-any.whl size=2558 sha256=2bf47d8d5c5c5b76865b51cd7e8d8b93cab4909037ed5172199d77df0d78fb41
+  Stored in directory: /private/var/folders/sp/pjxnsy9j58b7qzg0y73bkn_00000gn/T/pip-ephem-wheel-cache-6wxdwyfh/wheels/01/ab/04/2273231de78724a438e33edc51223ea4f3e8fe20e139cc6e0a
+Successfully built envx
+Installing collected packages: envx
+  Attempting uninstall: envx
+    Found existing installation: envx 0.1.0
+    Uninstalling envx-0.1.0:
+      Successfully uninstalled envx-0.1.0
+Successfully installed envx-0.1.0
+
+[notice] A new release of pip is available: 24.0 -> 25.1.1
+[notice] To update, run: pip install --upgrade pip
+[INFO] Environment setup completed
+[INFO] Running tests...
+[INFO] Running linting...
+src/__init__.py:1:53: W292 no newline at end of file
+src/agent/agent.py:4:80: E501 line too long (86 > 79 characters)
+src/agent/agent.py:9:1: F401 'uuid' imported but unused
+src/agent/agent.py:11:1: F401 'typing.Union' imported but unused
+src/agent/agent.py:35:1: W293 blank line contains whitespace
+src/agent/agent.py:39:1: W293 blank line contains whitespace
+src/agent/agent.py:47:1: W293 blank line contains whitespace
+src/agent/agent.py:56:1: W293 blank line contains whitespace
+src/agent/agent.py:61:80: E501 line too long (84 > 79 characters)
+src/agent/agent.py:63:80: E501 line too long (99 > 79 characters)
+src/agent/agent.py:66:1: W293 blank line contains whitespace
+src/agent/agent.py:71:80: E501 line too long (86 > 79 characters)
+src/agent/agent.py:73:1: W293 blank line contains whitespace
+src/agent/agent.py:83:1: W293 blank line contains whitespace
+src/agent/agent.py:88:1: W293 blank line contains whitespace
+src/agent/agent.py:91:1: W293 blank line contains whitespace
+src/agent/agent.py:103:1: W293 blank line contains whitespace
+src/agent/agent.py:107:1: W293 blank line contains whitespace
+src/agent/agent.py:110:1: W293 blank line contains whitespace
+src/agent/agent.py:114:80: E501 line too long (102 > 79 characters)
+src/agent/agent.py:119:80: E501 line too long (104 > 79 characters)
+src/agent/agent.py:121:1: W293 blank line contains whitespace
+src/agent/agent.py:125:1: W293 blank line contains whitespace
+src/agent/agent.py:128:1: W293 blank line contains whitespace
+src/agent/agent.py:129:80: E501 line too long (103 > 79 characters)
+src/agent/agent.py:130:1: W293 blank line contains whitespace
+src/agent/agent.py:148:1: W293 blank line contains whitespace
+src/agent/agent.py:151:1: W293 blank line contains whitespace
+src/agent/agent.py:157:1: W293 blank line contains whitespace
+src/agent/agent.py:159:1: W293 blank line contains whitespace
+src/agent/agent.py:161:80: E501 line too long (104 > 79 characters)
+src/agent/agent.py:173:1: W293 blank line contains whitespace
+src/agent/agent.py:177:1: W293 blank line contains whitespace
+src/agent/agent.py:180:1: W293 blank line contains whitespace
+src/agent/agent.py:191:1: W293 blank line contains whitespace
+src/agent/agent.py:194:1: W293 blank line contains whitespace
+src/agent/agent.py:200:1: W293 blank line contains whitespace
+src/agent/agent.py:204:1: W293 blank line contains whitespace
+src/agent/agent.py:207:1: W293 blank line contains whitespace
+src/agent/agent.py:211:80: E501 line too long (92 > 79 characters)
+src/agent/agent.py:212:1: W293 blank line contains whitespace
+src/agent/agent.py:221:80: E501 line too long (80 > 79 characters)
+src/agent/agent.py:223:1: W293 blank line contains whitespace
+src/agent/agent.py:243:1: W293 blank line contains whitespace
+src/agent/agent.py:247:1: W293 blank line contains whitespace
+src/agent/agent.py:250:80: E501 line too long (84 > 79 characters)
+src/agent/agent.py:251:1: W293 blank line contains whitespace
+src/agent/agent.py:260:1: W293 blank line contains whitespace
+src/agent/agent.py:271:1: W293 blank line contains whitespace
+src/agent/agent.py:279:1: W293 blank line contains whitespace
+src/agent/agent.py:285:80: E501 line too long (88 > 79 characters)
+src/agent/agent.py:287:1: W293 blank line contains whitespace
+src/agent/agent.py:290:1: W293 blank line contains whitespace
+src/agent/agent.py:306:1: W293 blank line contains whitespace
+src/agent/agent.py:313:80: E501 line too long (85 > 79 characters)
+src/agent/agent.py:315:1: W293 blank line contains whitespace
+src/agent/agent.py:327:80: E501 line too long (80 > 79 characters)
+src/agent/agent.py:329:1: W293 blank line contains whitespace
+src/agent/agent.py:338:1: W293 blank line contains whitespace
+src/agent/agent.py:339:80: E501 line too long (80 > 79 characters)
+src/agent/agent.py:342:1: W293 blank line contains whitespace
+src/agent/agent.py:345:1: W293 blank line contains whitespace
+src/agent/agent.py:358:1: W293 blank line contains whitespace
+src/agent/agent.py:369:1: W293 blank line contains whitespace
+src/agent/agent.py:376:1: W293 blank line contains whitespace
+src/agent/agent.py:384:1: W293 blank line contains whitespace
+src/agent/agent.py:385:80: E501 line too long (80 > 79 characters)
+src/agent/agent.py:388:1: W293 blank line contains whitespace
+src/agent/agent.py:391:1: W293 blank line contains whitespace
+src/agent/agent.py:396:1: W293 blank line contains whitespace
+src/agent/agent.py:405:80: E501 line too long (96 > 79 characters)
+src/agent/agent.py:407:1: W293 blank line contains whitespace
+src/agent/agent.py:411:1: W293 blank line contains whitespace
+src/agent/agent.py:416:80: E501 line too long (95 > 79 characters)
+src/agent/agent.py:420:80: E501 line too long (95 > 79 characters)
+src/agent/agent.py:424:45: W291 trailing whitespace
+src/agent/agent.py:425:42: W291 trailing whitespace
+src/agent/agent.py:431:41: W291 trailing whitespace
+src/agent/agent.py:432:38: W291 trailing whitespace
+src/agent/agent.py:436:1: W293 blank line contains whitespace
+src/agent/agent.py:445:80: E501 line too long (97 > 79 characters)
+src/agent/agent.py:449:47: W291 trailing whitespace
+src/agent/agent.py:450:42: W291 trailing whitespace
+src/agent/agent.py:456:43: W291 trailing whitespace
+src/agent/agent.py:457:38: W291 trailing whitespace
+src/agent/agent.py:461:1: W293 blank line contains whitespace
+src/agent/agent.py:463:80: E501 line too long (109 > 79 characters)
+src/agent/agent.py:468:37: F541 f-string is missing placeholders
+src/agent/agent.py:468:80: E501 line too long (84 > 79 characters)
+src/agent/agent.py:472:37: F541 f-string is missing placeholders
+src/agent/agent.py:478:80: E501 line too long (85 > 79 characters)
+src/agent/agent.py:484:1: W293 blank line contains whitespace
+src/agent/agent.py:503:80: E501 line too long (94 > 79 characters)
+src/agent/agent.py:515:80: E501 line too long (89 > 79 characters)
+src/agent/agent.py:519:1: W293 blank line contains whitespace
+src/agent/agent.py:528:1: W293 blank line contains whitespace
+src/agent/agent.py:532:1: W293 blank line contains whitespace
+src/agent/agent.py:541:80: E501 line too long (83 > 79 characters)
+src/agent/agent.py:548:1: W293 blank line contains whitespace
+src/agent/agent.py:552:1: W293 blank line contains whitespace
+src/agent/agent.py:560:1: W293 blank line contains whitespace
+src/agent/agent.py:569:80: E501 line too long (90 > 79 characters)
+src/agent/agent.py:570:1: W293 blank line contains whitespace
+src/agent/agent.py:572:1: W293 blank line contains whitespace
+src/agent/agent.py:573:80: E501 line too long (84 > 79 characters)
+src/agent/agent.py:575:1: W293 blank line contains whitespace
+src/agent/agent.py:577:1: W293 blank line contains whitespace
+src/agent/agent.py:578:80: E501 line too long (83 > 79 characters)
+src/agent/agent.py:581:1: W293 blank line contains whitespace
+src/agent/agent.py:587:80: E501 line too long (90 > 79 characters)
+src/agent/agent.py:588:1: W293 blank line contains whitespace
+src/agent/agent.py:592:1: W293 blank line contains whitespace
+src/agent/agent.py:598:80: E501 line too long (96 > 79 characters)
+src/agent/agent.py:599:1: W293 blank line contains whitespace
+src/agent/agent.py:603:1: W293 blank line contains whitespace
+src/agent/agent.py:606:1: W293 blank line contains whitespace
+src/agent/agent.py:611:1: W293 blank line contains whitespace
+src/agent/agent.py:615:1: W293 blank line contains whitespace
+src/agent/agent.py:623:1: W293 blank line contains whitespace
+src/agent/agent.py:624:80: E501 line too long (99 > 79 characters)
+src/agent/agent.py:627:1: W293 blank line contains whitespace
+src/agent/agent.py:631:1: W293 blank line contains whitespace
+src/agent/agent.py:636:1: W293 blank line contains whitespace
+src/agent/agent.py:646:1: W293 blank line contains whitespace
+src/agent/agent.py:649:64: W291 trailing whitespace
+src/agent/agent.py:652:1: W293 blank line contains whitespace
+src/agent/agent.py:654:80: E501 line too long (90 > 79 characters)
+src/agent/agent.py:657:80: E501 line too long (100 > 79 characters)
+src/agent/agent.py:661:80: E501 line too long (80 > 79 characters)
+src/agent/agent.py:662:1: W293 blank line contains whitespace
+src/agent/agent.py:671:1: W293 blank line contains whitespace
+src/agent/agent.py:676:1: W293 blank line contains whitespace
+src/agent/agent.py:679:1: W293 blank line contains whitespace
+src/agent/agent.py:680:80: E501 line too long (90 > 79 characters)
+src/agent/agent.py:684:1: W293 blank line contains whitespace
+src/agent/agent.py:687:80: E501 line too long (111 > 79 characters)
+src/agent/agent.py:692:80: E501 line too long (84 > 79 characters)
+src/agent/agent.py:694:1: W293 blank line contains whitespace
+src/agent/agent.py:697:80: E501 line too long (80 > 79 characters)
+src/agent/agent.py:698:1: W293 blank line contains whitespace
+src/agent/agent.py:706:1: W293 blank line contains whitespace
+src/agent/agent.py:709:1: W293 blank line contains whitespace
+src/agent/agent.py:713:1: W293 blank line contains whitespace
+src/agent/agent.py:714:80: E501 line too long (85 > 79 characters)
+src/agent/agent.py:715:80: E501 line too long (92 > 79 characters)
+src/agent/agent.py:722:80: E501 line too long (103 > 79 characters)
+src/agent/agent.py:726:1: W293 blank line contains whitespace
+src/agent/agent.py:729:80: E501 line too long (100 > 79 characters)
+src/agent/agent.py:731:80: E501 line too long (98 > 79 characters)
+src/agent/agent.py:732:1: W293 blank line contains whitespace
+src/agent/agent.py:737:80: E501 line too long (85 > 79 characters)
+src/agent/agent.py:744:80: E501 line too long (95 > 79 characters)
+src/agent/agent.py:746:1: W293 blank line contains whitespace
+src/agent/agent.py:749:80: E501 line too long (86 > 79 characters)
+src/agent/agent.py:754:80: E501 line too long (93 > 79 characters)
+src/agent/agent.py:756:1: W293 blank line contains whitespace
+src/agent/agent.py:758:80: E501 line too long (81 > 79 characters)
+src/agent/agent.py:765:1: W293 blank line contains whitespace
+src/agent/agent.py:769:1: W293 blank line contains whitespace
+src/agent/agent.py:770:80: E501 line too long (80 > 79 characters)
+src/agent/agent.py:771:1: W293 blank line contains whitespace
+src/agent/agent.py:774:1: W293 blank line contains whitespace
+src/agent/agent.py:787:80: E501 line too long (82 > 79 characters)
+src/agent/agent.py:790:1: W293 blank line contains whitespace
+src/agent/agent.py:793:1: W293 blank line contains whitespace
+src/agent/config.py:2:80: E501 line too long (85 > 79 characters)
+src/agent/config.py:4:80: E501 line too long (86 > 79 characters)
+src/agent/config.py:12:1: F401 'typing.List' imported but unused
+src/agent/config.py:24:1: W293 blank line contains whitespace
+src/agent/config.py:34:1: W293 blank line contains whitespace
+src/agent/config.py:37:1: W293 blank line contains whitespace
+src/agent/config.py:40:1: W293 blank line contains whitespace
+src/agent/config.py:48:1: W293 blank line contains whitespace
+src/agent/config.py:50:1: W293 blank line contains whitespace
+src/agent/config.py:57:80: E501 line too long (81 > 79 characters)
+src/agent/config.py:61:80: E501 line too long (91 > 79 characters)
+src/agent/config.py:71:1: W293 blank line contains whitespace
+src/agent/config.py:81:1: W293 blank line contains whitespace
+src/agent/config.py:85:1: W293 blank line contains whitespace
+src/agent/config.py:89:1: W293 blank line contains whitespace
+src/agent/config.py:92:1: W293 blank line contains whitespace
+src/agent/config.py:97:1: W293 blank line contains whitespace
+src/agent/config.py:109:1: W293 blank line contains whitespace
+src/agent/config.py:116:1: W293 blank line contains whitespace
+src/agent/config.py:117:80: E501 line too long (86 > 79 characters)
+src/agent/config.py:124:80: E501 line too long (87 > 79 characters)
+src/agent/config.py:127:80: E501 line too long (93 > 79 characters)
+src/agent/config.py:131:80: E501 line too long (83 > 79 characters)
+src/agent/config.py:132:1: W293 blank line contains whitespace
+src/agent/config.py:134:1: W293 blank line contains whitespace
+src/agent/config.py:137:1: W293 blank line contains whitespace
+src/agent/config.py:152:1: W293 blank line contains whitespace
+src/agent/config.py:156:1: W293 blank line contains whitespace
+src/agent/config.py:161:1: W293 blank line contains whitespace
+src/agent/config.py:164:1: W293 blank line contains whitespace
+src/agent/config.py:169:1: W293 blank line contains whitespace
+src/agent/config.py:175:80: E501 line too long (81 > 79 characters)
+src/agent/config.py:181:1: W293 blank line contains whitespace
+src/agent/config.py:188:1: W293 blank line contains whitespace
+src/agent/config.py:198:1: W293 blank line contains whitespace
+src/agent/config.py:199:80: E501 line too long (83 > 79 characters)
+src/agent/config.py:202:1: W293 blank line contains whitespace
+src/agent/config.py:204:1: W293 blank line contains whitespace
+src/agent/config.py:207:1: W293 blank line contains whitespace
+src/agent/config.py:211:1: W293 blank line contains whitespace
+src/agent/config.py:216:80: E501 line too long (81 > 79 characters)
+src/agent/config.py:226:1: W293 blank line contains whitespace
+src/agent/config.py:231:1: W293 blank line contains whitespace
+src/agent/config.py:234:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:4:80: E501 line too long (92 > 79 characters)
+src/agent/mcp_client.py:26:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:36:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:40:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:44:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:46:80: E501 line too long (81 > 79 characters)
+src/agent/mcp_client.py:50:80: E501 line too long (105 > 79 characters)
+src/agent/mcp_client.py:51:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:56:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:59:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:62:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:70:80: E501 line too long (80 > 79 characters)
+src/agent/mcp_client.py:71:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:73:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:80:80: E501 line too long (85 > 79 characters)
+src/agent/mcp_client.py:90:80: E501 line too long (85 > 79 characters)
+src/agent/mcp_client.py:91:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:95:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:100:80: E501 line too long (80 > 79 characters)
+src/agent/mcp_client.py:101:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:105:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:107:80: E501 line too long (84 > 79 characters)
+src/agent/mcp_client.py:112:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:114:80: E501 line too long (85 > 79 characters)
+src/agent/mcp_client.py:115:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:120:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:121:80: E501 line too long (86 > 79 characters)
+src/agent/mcp_client.py:122:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:123:80: E501 line too long (86 > 79 characters)
+src/agent/mcp_client.py:126:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:130:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:133:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:138:80: E501 line too long (85 > 79 characters)
+src/agent/mcp_client.py:139:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:142:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:146:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:150:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:153:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:157:80: E501 line too long (93 > 79 characters)
+src/agent/mcp_client.py:161:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:172:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:174:80: E501 line too long (113 > 79 characters)
+src/agent/mcp_client.py:179:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:183:34: F541 f-string is missing placeholders
+src/agent/mcp_client.py:187:34: F541 f-string is missing placeholders
+src/agent/mcp_client.py:187:80: E501 line too long (81 > 79 characters)
+src/agent/mcp_client.py:189:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:190:13: F841 local variable 'e' is assigned to but never used
+src/agent/mcp_client.py:191:80: E501 line too long (96 > 79 characters)
+src/agent/mcp_client.py:196:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:203:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:206:80: E501 line too long (88 > 79 characters)
+src/agent/mcp_client.py:213:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:217:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:220:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:223:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:228:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:235:80: E501 line too long (111 > 79 characters)
+src/agent/mcp_client.py:237:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:243:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:247:1: W293 blank line contains whitespace
+src/agent/mcp_client.py:255:1: W293 blank line contains whitespace
+src/agent/models/__init__.py:4:80: E501 line too long (81 > 79 characters)
+src/agent/models/base.py:4:74: W291 trailing whitespace
+src/agent/models/base.py:9:1: F401 'typing.Union' imported but unused
+src/agent/models/base.py:15:1: W293 blank line contains whitespace
+src/agent/models/base.py:22:1: W293 blank line contains whitespace
+src/agent/models/base.py:32:1: W293 blank line contains whitespace
+src/agent/models/base.py:34:80: E501 line too long (80 > 79 characters)
+src/agent/models/base.py:35:80: E501 line too long (89 > 79 characters)
+src/agent/models/base.py:36:80: E501 line too long (99 > 79 characters)
+src/agent/models/base.py:41:1: W293 blank line contains whitespace
+src/agent/models/base.py:43:80: E501 line too long (93 > 79 characters)
+src/agent/models/base.py:44:80: E501 line too long (98 > 79 characters)
+src/agent/models/base.py:45:80: E501 line too long (86 > 79 characters)
+src/agent/models/base.py:46:80: E501 line too long (94 > 79 characters)
+src/agent/models/base.py:47:80: E501 line too long (100 > 79 characters)
+src/agent/models/base.py:48:1: W293 blank line contains whitespace
+src/agent/models/base.py:53:80: E501 line too long (85 > 79 characters)
+src/agent/models/base.py:61:1: W293 blank line contains whitespace
+src/agent/models/base.py:62:80: E501 line too long (81 > 79 characters)
+src/agent/models/base.py:63:80: E501 line too long (86 > 79 characters)
+src/agent/models/base.py:64:80: E501 line too long (95 > 79 characters)
+src/agent/models/base.py:65:80: E501 line too long (89 > 79 characters)
+src/agent/models/base.py:66:80: E501 line too long (90 > 79 characters)
+src/agent/models/base.py:67:80: E501 line too long (87 > 79 characters)
+src/agent/models/base.py:72:80: E501 line too long (85 > 79 characters)
+src/agent/models/base.py:73:1: W293 blank line contains whitespace
+src/agent/models/base.py:80:80: E501 line too long (81 > 79 characters)
+src/agent/models/base.py:86:1: W293 blank line contains whitespace
+src/agent/models/base.py:95:1: W293 blank line contains whitespace
+src/agent/models/base.py:105:1: W293 blank line contains whitespace
+src/agent/models/base.py:108:80: E501 line too long (94 > 79 characters)
+src/agent/models/base.py:109:80: E501 line too long (97 > 79 characters)
+src/agent/models/base.py:110:80: E501 line too long (104 > 79 characters)
+src/agent/models/base.py:111:80: E501 line too long (88 > 79 characters)
+src/agent/models/base.py:112:80: E501 line too long (89 > 79 characters)
+src/agent/models/base.py:113:80: E501 line too long (103 > 79 characters)
+src/agent/models/base.py:118:1: W293 blank line contains whitespace
+src/agent/models/base.py:120:80: E501 line too long (85 > 79 characters)
+src/agent/models/base.py:122:80: E501 line too long (96 > 79 characters)
+src/agent/models/base.py:123:80: E501 line too long (100 > 79 characters)
+src/agent/models/base.py:124:80: E501 line too long (99 > 79 characters)
+src/agent/models/base.py:125:80: E501 line too long (90 > 79 characters)
+src/agent/models/base.py:126:1: W293 blank line contains whitespace
+src/agent/models/base.py:129:80: E501 line too long (99 > 79 characters)
+src/agent/models/base.py:131:80: E501 line too long (81 > 79 characters)
+src/agent/models/base.py:133:80: E501 line too long (90 > 79 characters)
+src/agent_framework/orchestrator.py:4:80: E501 line too long (81 > 79 characters)
+src/agent_framework/orchestrator.py:7:1: F401 'asyncio' imported but unused
+src/agent_framework/orchestrator.py:9:1: F401 'typing.Any' imported but unused
+src/agent_framework/orchestrator.py:9:1: F401 'typing.Dict' imported but unused
+src/agent_framework/orchestrator.py:9:1: F401 'typing.List' imported but unused
+src/agent_framework/orchestrator.py:9:1: F401 'typing.Optional' imported but unused
+src/agent_framework/orchestrator.py:9:1: F401 'typing.Union' imported but unused
+src/agent_framework/orchestrator.py:25:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:30:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:31:80: E501 line too long (96 > 79 characters)
+src/agent_framework/orchestrator.py:33:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:36:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:40:80: E501 line too long (93 > 79 characters)
+src/agent_framework/orchestrator.py:41:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:67:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:68:80: E501 line too long (90 > 79 characters)
+src/agent_framework/orchestrator.py:78:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:81:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:88:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:96:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:97:80: E501 line too long (93 > 79 characters)
+src/agent_framework/orchestrator.py:106:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:109:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:116:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:117:80: E501 line too long (97 > 79 characters)
+src/agent_framework/orchestrator.py:126:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:131:80: E501 line too long (81 > 79 characters)
+src/agent_framework/orchestrator.py:133:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:134:80: E501 line too long (90 > 79 characters)
+src/agent_framework/orchestrator.py:141:23: F541 f-string is missing placeholders
+src/agent_framework/orchestrator.py:144:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:147:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:154:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:162:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:163:80: E501 line too long (94 > 79 characters)
+src/agent_framework/orchestrator.py:172:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:175:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:182:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:183:80: E501 line too long (93 > 79 characters)
+src/agent_framework/orchestrator.py:190:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:197:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:198:80: E501 line too long (98 > 79 characters)
+src/agent_framework/orchestrator.py:207:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:214:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:215:80: E501 line too long (99 > 79 characters)
+src/agent_framework/orchestrator.py:223:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:230:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:231:80: E501 line too long (102 > 79 characters)
+src/agent_framework/orchestrator.py:234:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator.py:255:80: E501 line too long (86 > 79 characters)
+src/agent_framework/orchestrator_client.py:8:1: F401 'typing.Any' imported but unused
+src/agent_framework/orchestrator_client.py:8:1: F401 'typing.Dict' imported but unused
+src/agent_framework/orchestrator_client.py:8:1: F401 'typing.List' imported but unused
+src/agent_framework/orchestrator_client.py:8:1: F401 'typing.Optional' imported but unused
+src/agent_framework/orchestrator_client.py:10:1: F401 'src.external_interface.models.CommandType' imported but unused
+src/agent_framework/orchestrator_client.py:22:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:25:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:34:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:37:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:41:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:50:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:54:80: E501 line too long (82 > 79 characters)
+src/agent_framework/orchestrator_client.py:64:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:65:80: E501 line too long (97 > 79 characters)
+src/agent_framework/orchestrator_client.py:67:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:69:80: E501 line too long (81 > 79 characters)
+src/agent_framework/orchestrator_client.py:73:80: E501 line too long (80 > 79 characters)
+src/agent_framework/orchestrator_client.py:75:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:79:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:80:80: E501 line too long (93 > 79 characters)
+src/agent_framework/orchestrator_client.py:82:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:85:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:89:80: E501 line too long (106 > 79 characters)
+src/agent_framework/orchestrator_client.py:90:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:94:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:97:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:100:1: W293 blank line contains whitespace
+src/agent_framework/orchestrator_client.py:103:1: W293 blank line contains whitespace
+src/external_interface/__init__.py:2:80: E501 line too long (80 > 79 characters)
+src/external_interface/__init__.py:4:80: E501 line too long (81 > 79 characters)
+src/external_interface/__init__.py:4:82: W291 trailing whitespace
+src/external_interface/api.py:4:80: E501 line too long (81 > 79 characters)
+src/external_interface/api.py:7:1: F401 'typing.List' imported but unused
+src/external_interface/api.py:7:1: F401 'typing.Optional' imported but unused
+src/external_interface/api.py:10:1: F401 'os' imported but unused
+src/external_interface/api.py:12:1: F401 'fastapi.Request' imported but unused
+src/external_interface/api.py:13:1: F401 'pydantic.BaseModel' imported but unused
+src/external_interface/api.py:33:80: E501 line too long (84 > 79 characters)
+src/external_interface/api.py:42:1: E402 module level import not at top of file
+src/external_interface/api.py:45:1: E302 expected 2 blank lines, found 1
+src/external_interface/api.py:56:24: F541 f-string is missing placeholders
+src/external_interface/api.py:77:80: E501 line too long (87 > 79 characters)
+src/external_interface/api.py:78:1: W293 blank line contains whitespace
+src/external_interface/api.py:102:1: W293 blank line contains whitespace
+src/external_interface/api.py:109:1: W293 blank line contains whitespace
+src/external_interface/api.py:110:80: E501 line too long (98 > 79 characters)
+src/external_interface/api.py:111:1: W293 blank line contains whitespace
+src/external_interface/api.py:115:1: W293 blank line contains whitespace
+src/external_interface/api.py:143:1: W293 blank line contains whitespace
+src/external_interface/api.py:147:80: E501 line too long (84 > 79 characters)
+src/external_interface/api.py:149:1: W293 blank line contains whitespace
+src/external_interface/api.py:150:80: E501 line too long (81 > 79 characters)
+src/external_interface/api.py:151:1: W293 blank line contains whitespace
+src/external_interface/api.py:155:1: W293 blank line contains whitespace
+src/external_interface/api.py:162:80: E501 line too long (81 > 79 characters)
+src/external_interface/api.py:182:1: W293 blank line contains whitespace
+src/external_interface/api.py:189:1: W293 blank line contains whitespace
+src/external_interface/api.py:191:1: W293 blank line contains whitespace
+src/external_interface/api.py:195:1: W293 blank line contains whitespace
+src/external_interface/api.py:215:1: W293 blank line contains whitespace
+src/external_interface/api.py:223:1: W293 blank line contains whitespace
+src/external_interface/api.py:225:1: W293 blank line contains whitespace
+src/external_interface/api.py:229:1: W293 blank line contains whitespace
+src/external_interface/api.py:237:80: E501 line too long (87 > 79 characters)
+src/external_interface/client.py:12:1: F401 'time' imported but unused
+src/external_interface/client.py:14:1: F401 'typing.Union' imported but unused
+src/external_interface/client.py:14:1: F401 'typing.Callable' imported but unused
+src/external_interface/client.py:18:1: F401 'pydantic.BaseModel' imported but unused
+src/external_interface/client.py:20:1: F401 '.models.CommandType' imported but unused
+src/external_interface/client.py:20:1: F401 '.models.ExecuteTaskRequest' imported but unused
+src/external_interface/client.py:20:1: F401 '.models.CreateAgentRequest' imported but unused
+src/external_interface/client.py:43:1: W293 blank line contains whitespace
+src/external_interface/client.py:46:1: W293 blank line contains whitespace
+src/external_interface/client.py:58:1: W293 blank line contains whitespace
+src/external_interface/client.py:61:1: W293 blank line contains whitespace
+src/external_interface/client.py:83:1: W293 blank line contains whitespace
+src/external_interface/client.py:85:14: W291 trailing whitespace
+src/external_interface/client.py:86:30: W291 trailing whitespace
+src/external_interface/client.py:87:29: W291 trailing whitespace
+src/external_interface/client.py:95:1: W293 blank line contains whitespace
+src/external_interface/client.py:120:1: W293 blank line contains whitespace
+src/external_interface/client.py:134:1: W293 blank line contains whitespace
+src/external_interface/client.py:137:1: W293 blank line contains whitespace
+src/external_interface/client.py:142:27: F541 f-string is missing placeholders
+src/external_interface/client.py:144:1: W293 blank line contains whitespace
+src/external_interface/client.py:154:1: W293 blank line contains whitespace
+src/external_interface/client.py:161:1: W293 blank line contains whitespace
+src/external_interface/client.py:164:1: W293 blank line contains whitespace
+src/external_interface/client.py:173:1: W293 blank line contains whitespace
+src/external_interface/client.py:187:1: W293 blank line contains whitespace
+src/external_interface/client.py:189:80: E501 line too long (101 > 79 characters)
+src/external_interface/client.py:190:80: E501 line too long (80 > 79 characters)
+src/external_interface/client.py:195:80: E501 line too long (99 > 79 characters)
+src/external_interface/client.py:196:1: W293 blank line contains whitespace
+src/external_interface/client.py:198:80: E501 line too long (82 > 79 characters)
+src/external_interface/client.py:199:80: E501 line too long (98 > 79 characters)
+src/external_interface/client.py:201:1: W293 blank line contains whitespace
+src/external_interface/client.py:205:1: W293 blank line contains whitespace
+src/external_interface/client.py:208:1: W293 blank line contains whitespace
+src/external_interface/client.py:211:1: W293 blank line contains whitespace
+src/external_interface/client.py:223:80: E501 line too long (94 > 79 characters)
+src/external_interface/client.py:224:80: E501 line too long (111 > 79 characters)
+src/external_interface/client.py:225:1: W293 blank line contains whitespace
+src/external_interface/client.py:233:1: W293 blank line contains whitespace
+src/external_interface/client.py:236:1: W293 blank line contains whitespace
+src/external_interface/client.py:239:1: W293 blank line contains whitespace
+src/external_interface/client.py:251:80: E501 line too long (97 > 79 characters)
+src/external_interface/client.py:253:1: W293 blank line contains whitespace
+src/external_interface/client.py:256:80: E501 line too long (112 > 79 characters)
+src/external_interface/client.py:258:80: E501 line too long (96 > 79 characters)
+src/external_interface/client.py:259:1: W293 blank line contains whitespace
+src/external_interface/client.py:262:1: W293 blank line contains whitespace
+src/external_interface/client.py:265:1: W293 blank line contains whitespace
+src/external_interface/client.py:272:1: W293 blank line contains whitespace
+src/external_interface/client.py:273:80: E501 line too long (93 > 79 characters)
+src/external_interface/client.py:275:1: W293 blank line contains whitespace
+src/external_interface/client.py:278:1: W293 blank line contains whitespace
+src/external_interface/client.py:281:1: W293 blank line contains whitespace
+src/external_interface/client.py:288:80: E501 line too long (94 > 79 characters)
+src/external_interface/client.py:290:1: W293 blank line contains whitespace
+src/external_interface/client.py:292:80: E501 line too long (90 > 79 characters)
+src/external_interface/client.py:293:1: W293 blank line contains whitespace
+src/external_interface/client.py:295:1: W293 blank line contains whitespace
+src/external_interface/client.py:296:80: E501 line too long (98 > 79 characters)
+src/external_interface/client.py:298:1: W293 blank line contains whitespace
+src/external_interface/client.py:302:1: W293 blank line contains whitespace
+src/external_interface/client.py:305:1: W293 blank line contains whitespace
+src/external_interface/client.py:312:80: E501 line too long (99 > 79 characters)
+src/external_interface/client.py:314:1: W293 blank line contains whitespace
+src/external_interface/client.py:316:80: E501 line too long (90 > 79 characters)
+src/external_interface/client.py:317:1: W293 blank line contains whitespace
+src/external_interface/client.py:319:1: W293 blank line contains whitespace
+src/external_interface/client.py:320:80: E501 line too long (86 > 79 characters)
+src/external_interface/client.py:322:1: W293 blank line contains whitespace
+src/external_interface/client.py:325:1: W293 blank line contains whitespace
+src/external_interface/client.py:328:1: W293 blank line contains whitespace
+src/external_interface/client.py:335:80: E501 line too long (91 > 79 characters)
+src/external_interface/client.py:337:1: W293 blank line contains whitespace
+src/external_interface/client.py:339:80: E501 line too long (90 > 79 characters)
+src/external_interface/client.py:340:1: W293 blank line contains whitespace
+src/external_interface/client.py:342:1: W293 blank line contains whitespace
+src/external_interface/client.py:345:1: W293 blank line contains whitespace
+src/external_interface/client.py:348:1: W293 blank line contains whitespace
+src/external_interface/client.py:355:1: W293 blank line contains whitespace
+src/external_interface/client.py:358:1: W293 blank line contains whitespace
+src/external_interface/client.py:361:1: W293 blank line contains whitespace
+src/external_interface/client.py:364:1: W293 blank line contains whitespace
+src/external_interface/client.py:380:1: W293 blank line contains whitespace
+src/external_interface/client.py:384:80: E501 line too long (88 > 79 characters)
+src/external_interface/client.py:385:80: E501 line too long (90 > 79 characters)
+src/external_interface/client.py:386:80: E501 line too long (100 > 79 characters)
+src/external_interface/client.py:387:80: E501 line too long (116 > 79 characters)
+src/external_interface/client.py:388:1: W293 blank line contains whitespace
+src/external_interface/client.py:389:80: E501 line too long (81 > 79 characters)
+src/external_interface/client.py:390:1: W293 blank line contains whitespace
+src/external_interface/client.py:392:5: F841 local variable 'health_parser' is assigned to but never used
+src/external_interface/client.py:393:1: W293 blank line contains whitespace
+src/external_interface/client.py:395:5: F841 local variable 'list_agents_parser' is assigned to but never used
+src/external_interface/client.py:395:80: E501 line too long (85 > 79 characters)
+src/external_interface/client.py:396:1: W293 blank line contains whitespace
+src/external_interface/client.py:398:80: E501 line too long (88 > 79 characters)
+src/external_interface/client.py:400:1: W293 blank line contains whitespace
+src/external_interface/client.py:402:80: E501 line too long (98 > 79 characters)
+src/external_interface/client.py:404:80: E501 line too long (96 > 79 characters)
+src/external_interface/client.py:405:1: W293 blank line contains whitespace
+src/external_interface/client.py:407:80: E501 line too long (90 > 79 characters)
+src/external_interface/client.py:408:80: E501 line too long (108 > 79 characters)
+src/external_interface/client.py:409:1: W293 blank line contains whitespace
+src/external_interface/client.py:411:80: E501 line too long (88 > 79 characters)
+src/external_interface/client.py:412:80: E501 line too long (101 > 79 characters)
+src/external_interface/client.py:413:1: W293 blank line contains whitespace
+src/external_interface/client.py:415:1: W293 blank line contains whitespace
+src/external_interface/client.py:419:1: W293 blank line contains whitespace
+src/external_interface/client.py:426:1: W293 blank line contains whitespace
+src/external_interface/client.py:433:80: E501 line too long (80 > 79 characters)
+src/external_interface/client.py:435:1: W293 blank line contains whitespace
+src/external_interface/client.py:440:1: W293 blank line contains whitespace
+src/external_interface/client.py:444:1: W293 blank line contains whitespace
+src/external_interface/client.py:448:1: W293 blank line contains whitespace
+src/external_interface/client.py:454:1: W293 blank line contains whitespace
+src/external_interface/client.py:458:1: W293 blank line contains whitespace
+src/external_interface/client.py:461:1: W293 blank line contains whitespace
+src/external_interface/client.py:467:1: W293 blank line contains whitespace
+src/external_interface/client.py:471:1: W293 blank line contains whitespace
+src/external_interface/client.py:474:1: W293 blank line contains whitespace
+src/external_interface/client.py:480:1: W293 blank line contains whitespace
+src/external_interface/client.py:484:1: W293 blank line contains whitespace
+src/external_interface/client.py:488:1: W293 blank line contains whitespace
+src/external_interface/client.py:492:1: W293 blank line contains whitespace
+src/external_interface/client.py:494:1: W293 blank line contains whitespace
+src/external_interface/client.py:498:1: W293 blank line contains whitespace
+src/external_interface/client.py:502:1: W293 blank line contains whitespace
+src/external_interface/client.py:506:1: W293 blank line contains whitespace
+src/external_interface/client.py:510:1: W293 blank line contains whitespace
+src/external_interface/client.py:514:1: W293 blank line contains whitespace
+src/external_interface/client.py:518:1: W293 blank line contains whitespace
+src/external_interface/client.py:522:1: W293 blank line contains whitespace
+src/external_interface/config.py:10:1: F401 'typing.Union' imported but unused
+src/external_interface/config.py:16:1: W293 blank line contains whitespace
+src/external_interface/config.py:17:80: E501 line too long (83 > 79 characters)
+src/external_interface/config.py:23:1: W293 blank line contains whitespace
+src/external_interface/config.py:28:80: E501 line too long (93 > 79 characters)
+src/external_interface/config.py:29:80: E501 line too long (95 > 79 characters)
+src/external_interface/config.py:30:80: E501 line too long (84 > 79 characters)
+src/external_interface/config.py:31:80: E501 line too long (82 > 79 characters)
+src/external_interface/config.py:32:80: E501 line too long (98 > 79 characters)
+src/external_interface/config.py:33:1: W293 blank line contains whitespace
+src/external_interface/config.py:45:1: W293 blank line contains whitespace
+src/external_interface/config.py:50:80: E501 line too long (92 > 79 characters)
+src/external_interface/config.py:51:80: E501 line too long (83 > 79 characters)
+src/external_interface/config.py:56:1: W293 blank line contains whitespace
+src/external_interface/config.py:60:1: W293 blank line contains whitespace
+src/external_interface/config.py:63:1: W293 blank line contains whitespace
+src/external_interface/config.py:69:1: W293 blank line contains whitespace
+src/external_interface/config.py:73:1: W293 blank line contains whitespace
+src/external_interface/config.py:79:1: W293 blank line contains whitespace
+src/external_interface/config.py:85:1: W293 blank line contains whitespace
+src/external_interface/config.py:88:1: W293 blank line contains whitespace
+src/external_interface/config.py:91:1: W293 blank line contains whitespace
+src/external_interface/config.py:112:1: W293 blank line contains whitespace
+src/external_interface/config.py:115:1: W293 blank line contains whitespace
+src/external_interface/config.py:118:1: W293 blank line contains whitespace
+src/external_interface/config.py:130:1: W293 blank line contains whitespace
+src/external_interface/config.py:135:1: W293 blank line contains whitespace
+src/external_interface/config.py:138:1: W293 blank line contains whitespace
+src/external_interface/config.py:141:1: W293 blank line contains whitespace
+src/external_interface/config.py:144:1: W293 blank line contains whitespace
+src/external_interface/config.py:147:80: E501 line too long (105 > 79 characters)
+src/external_interface/config.py:148:1: W293 blank line contains whitespace
+src/external_interface/config.py:154:1: W293 blank line contains whitespace
+src/external_interface/config.py:157:1: W293 blank line contains whitespace
+src/external_interface/config.py:160:1: W293 blank line contains whitespace
+src/external_interface/config.py:170:80: E501 line too long (82 > 79 characters)
+src/external_interface/config.py:174:1: W293 blank line contains whitespace
+src/external_interface/config.py:179:1: W293 blank line contains whitespace
+src/external_interface/config.py:182:1: W293 blank line contains whitespace
+src/external_interface/config.py:185:1: W293 blank line contains whitespace
+src/external_interface/config.py:188:1: W293 blank line contains whitespace
+src/external_interface/config.py:191:80: E501 line too long (105 > 79 characters)
+src/external_interface/config.py:193:80: E501 line too long (105 > 79 characters)
+src/external_interface/config.py:194:1: W293 blank line contains whitespace
+src/external_interface/main.py:11:1: F401 'json' imported but unused
+src/external_interface/main.py:16:1: F401 'typing.Optional' imported but unused
+src/external_interface/main.py:32:1: W293 blank line contains whitespace
+src/external_interface/main.py:54:1: W293 blank line contains whitespace
+src/external_interface/main.py:61:1: W293 blank line contains whitespace
+src/external_interface/main.py:65:1: W293 blank line contains whitespace
+src/external_interface/main.py:73:1: W293 blank line contains whitespace
+src/external_interface/main.py:87:1: W293 blank line contains whitespace
+src/external_interface/main.py:94:1: W293 blank line contains whitespace
+src/external_interface/main.py:97:1: W293 blank line contains whitespace
+src/external_interface/main.py:115:1: W293 blank line contains whitespace
+src/external_interface/main.py:127:1: W293 blank line contains whitespace
+src/external_interface/main.py:131:1: W293 blank line contains whitespace
+src/external_interface/main.py:140:80: E501 line too long (80 > 79 characters)
+src/external_interface/main.py:144:1: W293 blank line contains whitespace
+src/external_interface/main.py:148:1: W293 blank line contains whitespace
+src/external_interface/main.py:156:1: W293 blank line contains whitespace
+src/external_interface/main.py:160:1: W293 blank line contains whitespace
+src/external_interface/main.py:163:1: W293 blank line contains whitespace
+src/external_interface/main.py:167:1: W293 blank line contains whitespace
+src/external_interface/main.py:172:1: W293 blank line contains whitespace
+src/external_interface/main.py:175:1: W293 blank line contains whitespace
+src/external_interface/main.py:185:80: E501 line too long (101 > 79 characters)
+src/external_interface/main.py:188:1: W293 blank line contains whitespace
+src/external_interface/models.py:4:80: E501 line too long (81 > 79 characters)
+src/external_interface/models.py:7:1: F401 'typing.List' imported but unused
+src/external_interface/models.py:7:1: F401 'typing.Union' imported but unused
+src/external_interface/models.py:14:1: W293 blank line contains whitespace
+src/external_interface/models.py:19:1: W293 blank line contains whitespace
+src/external_interface/models.py:25:1: W293 blank line contains whitespace
+src/external_interface/models.py:33:1: W293 blank line contains whitespace
+src/external_interface/models.py:43:1: W293 blank line contains whitespace
+src/external_interface/models.py:44:80: E501 line too long (81 > 79 characters)
+src/external_interface/models.py:45:80: E501 line too long (84 > 79 characters)
+src/external_interface/models.py:46:80: E501 line too long (98 > 79 characters)
+src/external_interface/models.py:47:80: E501 line too long (100 > 79 characters)
+src/external_interface/models.py:48:1: W293 blank line contains whitespace
+src/external_interface/models.py:53:43: W291 trailing whitespace
+src/external_interface/models.py:57:80: E501 line too long (101 > 79 characters)
+src/external_interface/models.py:63:1: W293 blank line contains whitespace
+src/external_interface/models.py:64:80: E501 line too long (84 > 79 characters)
+src/external_interface/models.py:65:80: E501 line too long (85 > 79 characters)
+src/external_interface/models.py:66:80: E501 line too long (94 > 79 characters)
+src/external_interface/models.py:67:80: E501 line too long (85 > 79 characters)
+src/external_interface/models.py:68:1: W293 blank line contains whitespace
+src/external_interface/models.py:71:80: E501 line too long (94 > 79 characters)
+src/external_interface/models.py:73:80: E501 line too long (82 > 79 characters)
+src/external_interface/models.py:75:80: E501 line too long (88 > 79 characters)
+src/external_interface/models.py:80:80: E501 line too long (80 > 79 characters)
+src/external_interface/models.py:84:1: W293 blank line contains whitespace
+src/external_interface/models.py:85:80: E501 line too long (85 > 79 characters)
+src/external_interface/models.py:86:80: E501 line too long (86 > 79 characters)
+src/external_interface/models.py:87:1: W293 blank line contains whitespace
+src/external_interface/models.py:90:80: E501 line too long (81 > 79 characters)
+src/external_interface/models.py:98:1: W293 blank line contains whitespace
+src/external_interface/models.py:99:80: E501 line too long (88 > 79 characters)
+src/external_interface/models.py:105:1: W293 blank line contains whitespace
+src/external_interface/models.py:106:80: E501 line too long (85 > 79 characters)
+src/external_interface/models.py:108:1: W293 blank line contains whitespace
+src/external_interface/models.py:111:80: E501 line too long (89 > 79 characters)
+src/external_interface/models.py:119:1: W293 blank line contains whitespace
+src/external_interface/models.py:120:80: E501 line too long (88 > 79 characters)
+src/external_interface/models.py:121:80: E501 line too long (80 > 79 characters)
+src/main.py:14:1: F401 'uuid' imported but unused
+src/main.py:15:1: F401 'pathlib.Path' imported but unused
+src/main.py:16:1: F401 'typing.Dict' imported but unused
+src/main.py:16:1: F401 'typing.Optional' imported but unused
+src/main.py:37:1: W293 blank line contains whitespace
+src/main.py:43:1: W293 blank line contains whitespace
+src/main.py:47:80: E501 line too long (80 > 79 characters)
+src/main.py:49:1: W293 blank line contains whitespace
+src/main.py:55:1: W293 blank line contains whitespace
+src/main.py:62:1: W293 blank line contains whitespace
+src/main.py:69:1: W293 blank line contains whitespace
+src/main.py:78:1: W293 blank line contains whitespace
+src/main.py:80:1: W293 blank line contains whitespace
+src/main.py:86:1: W293 blank line contains whitespace
+src/main.py:95:1: W293 blank line contains whitespace
+src/main.py:103:1: W293 blank line contains whitespace
+src/main.py:110:1: W293 blank line contains whitespace
+src/main.py:111:80: E501 line too long (81 > 79 characters)
+src/main.py:113:1: W293 blank line contains whitespace
+src/main.py:114:80: E501 line too long (85 > 79 characters)
+src/main.py:120:1: W293 blank line contains whitespace
+src/supervisor.py:13:1: F401 'signal' imported but unused
+src/supervisor.py:18:1: F401 'yaml' imported but unused
+src/supervisor.py:20:1: F401 'typing.List' imported but unused
+src/supervisor.py:20:1: F401 'typing.Optional' imported but unused
+src/supervisor.py:41:1: W293 blank line contains whitespace
+src/supervisor.py:45:1: W293 blank line contains whitespace
+src/supervisor.py:49:1: W293 blank line contains whitespace
+src/supervisor.py:57:1: W293 blank line contains whitespace
+src/supervisor.py:63:80: E501 line too long (85 > 79 characters)
+src/supervisor.py:64:1: W293 blank line contains whitespace
+src/supervisor.py:69:21: F811 redefinition of unused 'yaml' from line 18
+src/supervisor.py:72:80: E501 line too long (89 > 79 characters)
+src/supervisor.py:77:80: E501 line too long (90 > 79 characters)
+src/supervisor.py:78:1: W293 blank line contains whitespace
+src/supervisor.py:81:80: E501 line too long (82 > 79 characters)
+src/supervisor.py:82:1: W293 blank line contains whitespace
+src/supervisor.py:83:80: E501 line too long (90 > 79 characters)
+src/supervisor.py:84:80: E501 line too long (91 > 79 characters)
+src/supervisor.py:85:1: W293 blank line contains whitespace
+src/supervisor.py:87:80: E501 line too long (99 > 79 characters)
+src/supervisor.py:88:1: W293 blank line contains whitespace
+src/supervisor.py:89:80: E501 line too long (93 > 79 characters)
+src/supervisor.py:90:1: W293 blank line contains whitespace
+src/supervisor.py:94:1: W293 blank line contains whitespace
+src/supervisor.py:95:80: E501 line too long (83 > 79 characters)
+src/supervisor.py:98:1: W293 blank line contains whitespace
+src/supervisor.py:101:1: W293 blank line contains whitespace
+src/supervisor.py:108:1: W293 blank line contains whitespace
+src/supervisor.py:111:80: E501 line too long (94 > 79 characters)
+src/supervisor.py:113:1: W293 blank line contains whitespace
+src/supervisor.py:119:1: W293 blank line contains whitespace
+src/supervisor.py:122:80: E501 line too long (101 > 79 characters)
+src/supervisor.py:128:1: W293 blank line contains whitespace
+src/supervisor.py:136:1: W293 blank line contains whitespace
+src/supervisor.py:143:1: W293 blank line contains whitespace
+src/supervisor.py:148:1: W293 blank line contains whitespace
+src/supervisor.py:152:1: W293 blank line contains whitespace
+src/supervisor.py:159:1: W293 blank line contains whitespace
+src/supervisor.py:165:80: E501 line too long (83 > 79 characters)
+src/supervisor.py:166:1: W293 blank line contains whitespace
+src/supervisor.py:169:80: E501 line too long (114 > 79 characters)
+src/supervisor.py:170:1: W293 blank line contains whitespace
+src/supervisor.py:171:80: E501 line too long (91 > 79 characters)
+src/supervisor.py:172:80: E501 line too long (93 > 79 characters)
+src/supervisor.py:173:80: E501 line too long (93 > 79 characters)
+src/supervisor.py:174:80: E501 line too long (99 > 79 characters)
+src/supervisor.py:175:80: E501 line too long (89 > 79 characters)
+src/supervisor.py:177:80: E501 line too long (123 > 79 characters)
+src/supervisor.py:179:1: W293 blank line contains whitespace
+src/supervisor.py:180:80: E501 line too long (84 > 79 characters)
+src/supervisor.py:182:1: W293 blank line contains whitespace
+src/supervisor.py:186:1: W293 blank line contains whitespace
+src/supervisor.py:187:80: E501 line too long (86 > 79 characters)
+src/supervisor.py:190:80: E501 line too long (88 > 79 characters)
+src/supervisor.py:192:80: E501 line too long (107 > 79 characters)
+src/supervisor.py:193:1: W293 blank line contains whitespace
+src/supervisor.py:195:80: E501 line too long (91 > 79 characters)
+src/supervisor.py:196:80: E501 line too long (81 > 79 characters)
+src/supervisor.py:197:1: W293 blank line contains whitespace
+src/supervisor.py:199:80: E501 line too long (85 > 79 characters)
+src/supervisor.py:200:1: W293 blank line contains whitespace
+src/supervisor.py:202:1: W293 blank line contains whitespace
+src/supervisor.py:209:1: W293 blank line contains whitespace
+src/supervisor.py:211:1: W293 blank line contains whitespace
+src/supervisor.py:215:1: W293 blank line contains whitespace
+src/supervisor.py:220:1: W293 blank line contains whitespace
+src/supervisor.py:228:1: W293 blank line contains whitespace
+src/supervisor.py:234:1: W293 blank line contains whitespace
+src/supervisor.py:239:1: W293 blank line contains whitespace
+src/supervisor.py:240:80: E501 line too long (82 > 79 characters)
+src/supervisor.py:252:80: E501 line too long (97 > 79 characters)
+src/supervisor.py:253:1: W293 blank line contains whitespace
+src/supervisor.py:254:80: E501 line too long (128 > 79 characters)
+src/supervisor.py:255:1: W293 blank line contains whitespace
+src/supervisor.py:260:1: W293 blank line contains whitespace
+src/supervisor.py:267:1: W293 blank line contains whitespace
+src/supervisor.py:269:1: W293 blank line contains whitespace
+src/supervisor.py:274:1: W293 blank line contains whitespace
+src/supervisor.py:278:1: W293 blank line contains whitespace
+src/supervisor.py:288:1: W293 blank line contains whitespace
+src/supervisor.py:292:80: E501 line too long (87 > 79 characters)
+src/supervisor.py:294:1: W293 blank line contains whitespace
+src/supervisor.py:301:1: W293 blank line contains whitespace
+src/supervisor.py:308:1: W293 blank line contains whitespace
+src/supervisor.py:312:1: W293 blank line contains whitespace
+tests/check_deps.py:8:1: F401 'subprocess' imported but unused
+tests/check_deps.py:21:80: E501 line too long (96 > 79 characters)
+tests/check_deps.py:29:19: W291 trailing whitespace
+tests/check_deps.py:30:20: W291 trailing whitespace
+tests/check_deps.py:31:19: W291 trailing whitespace
+tests/check_deps.py:33:1: W293 blank line contains whitespace
+tests/check_deps.py:37:1: W293 blank line contains whitespace
+tests/check_deps.py:41:1: W293 blank line contains whitespace
+tests/check_deps.py:43:1: W293 blank line contains whitespace
+tests/check_deps.py:50:1: W293 blank line contains whitespace
+tests/check_deps.py:54:15: F541 f-string is missing placeholders
+tests/check_deps.py:56:15: F541 f-string is missing placeholders
+tests/check_deps.py:57:1: W293 blank line contains whitespace
+tests/test_api.py:6:1: F401 'json' imported but unused
+tests/test_api.py:12:1: F401 'pytest' imported but unused
+tests/test_api.py:12:1: E402 module level import not at top of file
+tests/test_api.py:13:1: E402 module level import not at top of file
+tests/test_api.py:14:1: E402 module level import not at top of file
+tests/test_api.py:15:1: E402 module level import not at top of file
+tests/test_api.py:40:1: W293 blank line contains whitespace
+tests/test_api.py:54:1: W293 blank line contains whitespace
+tests/test_api.py:68:1: W293 blank line contains whitespace
+tests/test_api.py:69:80: E501 line too long (81 > 79 characters)
+tests/test_api.py:81:1: W293 blank line contains whitespace
+tests/test_api.py:107:1: W293 blank line contains whitespace
+tests/test_api.py:111:1: W293 blank line contains whitespace
+tests/test_api.py:115:1: W293 blank line contains whitespace
+tests/test_api.py:119:1: W293 blank line contains whitespace
+tests/test_api.py:123:1: W293 blank line contains whitespace
+tests/test_api.py:127:1: W293 blank line contains whitespace
+tests/test_api.py:131:1: W293 blank line contains whitespace
+tests/test_client.py:6:1: F401 'json' imported but unused
+tests/test_client.py:9:1: F401 'pytest' imported but unused
+tests/test_client.py:15:1: E402 module level import not at top of file
+tests/test_client.py:16:1: F401 'external_interface.models.ExternalCommandResponse' imported but unused
+tests/test_client.py:16:1: E402 module level import not at top of file
+tests/test_client.py:16:80: E501 line too long (89 > 79 characters)
+tests/test_client.py:24:1: W293 blank line contains whitespace
+tests/test_client.py:28:1: W293 blank line contains whitespace
+tests/test_client.py:42:1: W293 blank line contains whitespace
+tests/test_client.py:51:1: W293 blank line contains whitespace
+tests/test_client.py:69:1: W293 blank line contains whitespace
+tests/test_client.py:77:1: W293 blank line contains whitespace
+tests/test_client.py:96:1: W293 blank line contains whitespace
+tests/test_client.py:104:1: W293 blank line contains whitespace
+tests/test_client.py:121:1: W293 blank line contains whitespace
+tests/test_client.py:125:1: W293 blank line contains whitespace
+tests/test_client.py:139:1: W293 blank line contains whitespace
+tests/test_client.py:143:1: W293 blank line contains whitespace
+tests/test_client.py:153:1: W293 blank line contains whitespace
+tests/test_client.py:156:1: W293 blank line contains whitespace
+tests/test_client.py:159:1: W293 blank line contains whitespace
+tests/test_client.py:162:1: W293 blank line contains whitespace
+tests/test_client.py:165:1: W293 blank line contains whitespace
+tests/test_command_flow.py:9:1: F401 'json' imported but unused
+tests/test_command_flow.py:17:1: E402 module level import not at top of file
+tests/test_command_flow.py:18:1: F401 'external_interface.models.CommandType' imported but unused
+tests/test_command_flow.py:18:1: E402 module level import not at top of file
+tests/test_command_flow.py:53:1: W293 blank line contains whitespace
+tests/test_command_flow.py:56:80: E501 line too long (81 > 79 characters)
+tests/test_command_flow.py:66:80: E501 line too long (81 > 79 characters)
+tests/test_command_flow.py:76:1: W293 blank line contains whitespace
+tests/test_command_flow.py:79:80: E501 line too long (80 > 79 characters)
+tests/test_command_flow.py:89:80: E501 line too long (81 > 79 characters)
+tests/test_command_flow.py:125:1: W293 blank line contains whitespace
+tests/test_command_flow.py:131:1: W293 blank line contains whitespace
+tests/test_command_flow.py:135:1: W293 blank line contains whitespace
+tests/test_command_flow.py:138:1: W293 blank line contains whitespace
+tests/test_command_flow.py:142:1: W293 blank line contains whitespace
+tests/test_command_flow.py:146:1: W293 blank line contains whitespace
+tests/test_command_flow.py:150:1: W293 blank line contains whitespace
+tests/test_command_flow.py:157:80: E501 line too long (84 > 79 characters)
+tests/test_command_flow.py:158:80: E501 line too long (86 > 79 characters)
+tests/test_command_flow.py:159:1: W293 blank line contains whitespace
+tests/test_command_flow.py:161:1: W293 blank line contains whitespace
+tests/test_command_flow.py:164:1: W293 blank line contains whitespace
+tests/test_command_flow.py:169:1: W293 blank line contains whitespace
+tests/test_models.py:4:1: F401 'pytest' imported but unused
+tests/test_models.py:27:1: W293 blank line contains whitespace
+tests/test_models.py:42:1: W293 blank line contains whitespace
+tests/test_models.py:57:1: W293 blank line contains whitespace
+tests/test_models.py:72:1: W293 blank line contains whitespace
+tests/test_models.py:76:80: E501 line too long (84 > 79 characters)
+tests/test_models.py:89:1: W293 blank line contains whitespace
+tests/test_models.py:104:1: W293 blank line contains whitespace
+tests/test_models.py:108:80: E501 line too long (80 > 79 characters)
+tests/test_models.py:121:1: W293 blank line contains whitespace
+tests/unit/models/test_agent_models.py:4:80: E501 line too long (89 > 79 characters)
+tests/unit/models/test_agent_models.py:10:1: F401 'src.agent.models.AgentStatus' imported but unused
+tests/unit/models/test_agent_models.py:10:1: F401 'src.agent.models.ToolConfig' imported but unused
+tests/unit/models/test_agent_models.py:25:1: W293 blank line contains whitespace
+tests/unit/models/test_agent_models.py:36:1: W293 blank line contains whitespace
+tests/unit/models/test_agent_models.py:45:1: W293 blank line contains whitespace
+tests/unit/models/test_agent_models.py:53:1: W293 blank line contains whitespace
+tests/unit/models/test_agent_models.py:57:1: W293 blank line contains whitespace
+tests/unit/models/test_agent_models.py:69:1: W293 blank line contains whitespace
+tests/unit/models/test_agent_models.py:77:1: W293 blank line contains whitespace
+tests/unit/models/test_agent_models.py:85:1: W293 blank line contains whitespace
+tests/unit/models/test_agent_models.py:93:1: W293 blank line contains whitespace
+tests/unit/models/test_agent_models.py:105:1: W293 blank line contains whitespace
+tests/unit/models/test_agent_models.py:113:1: W293 blank line contains whitespace
+tests/unit/models/test_agent_models.py:126:1: W293 blank line contains whitespace
+tests/unit/models/test_agent_models.py:136:1: W293 blank line contains whitespace
+tests/unit/models/test_agent_models.py:145:1: W293 blank line contains whitespace
+[WARN] Linting found issues (see log for details)
+[INFO] Running unit tests...
+============================= test session starts ==============================
+platform darwin -- Python 3.12.2, pytest-7.4.4, pluggy-1.6.0 -- /Users/psikosen/Documents/envx/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/psikosen/Documents/envx
+plugins: cov-4.1.0
+collecting ... collected 4 items
+
+tests/unit/models/test_agent_models.py::TestAgentModels::test_agent_config_validation PASSED [ 25%]
+tests/unit/models/test_agent_models.py::TestAgentModels::test_mcp_config_validation PASSED [ 50%]
+tests/unit/models/test_agent_models.py::TestAgentModels::test_task_definition_validation PASSED [ 75%]
+tests/unit/models/test_agent_models.py::TestAgentModels::test_task_response_validation FAILED [100%]
+
+=================================== FAILURES ===================================
+________________ TestAgentModels.test_task_response_validation _________________
+
+self = <test_agent_models.TestAgentModels testMethod=test_task_response_validation>
+
+    def test_task_response_validation(self):
+        """Test that TaskResponse properly validates input data."""
+        # Valid successful response
+        response = TaskResponse(
+            task_id="task-1",
+            agent_id="agent-1",
+            status=TaskStatus.COMPLETED,
+            result_payload={"result": "success"},
+        )
+        self.assertEqual(response.task_id, "task-1")
+        self.assertEqual(response.status, TaskStatus.COMPLETED)
+        self.assertIsNone(response.error_message)
+    
+        # Valid error response
+        response = TaskResponse(
+            task_id="task-1",
+            agent_id="agent-1",
+            status=TaskStatus.FAILED,
+            error_message="Something went wrong",
+        )
+        self.assertEqual(response.status, TaskStatus.FAILED)
+        self.assertEqual(response.error_message, "Something went wrong")
+    
+        # Inconsistent error state (failed but no error message)
+>       with self.assertRaises(ValidationError):
+E       AssertionError: ValidationError not raised
+
+tests/unit/models/test_agent_models.py:138: AssertionError
+=============================== warnings summary ===============================
+src/agent/models/base.py:49
+  /Users/psikosen/Documents/envx/src/agent/models/base.py:49: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator('is_orchestrator', always=True)
+
+src/agent/models/base.py:74
+  /Users/psikosen/Documents/envx/src/agent/models/base.py:74: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator('timeout_seconds')
+
+src/agent/models/base.py:127
+  /Users/psikosen/Documents/envx/src/agent/models/base.py:127: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator('error_message')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/models/test_agent_models.py::TestAgentModels::test_task_response_validation
+=================== 1 failed, 3 passed, 3 warnings in 0.08s ====================
+[WARN] Some unit tests failed (see log for details)
+[INFO] Continuing despite test failures
+[INFO] Running PAOP system in Docker...
+[INFO] Building Docker image...
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.35kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.10-slim
+#2 DONE 0.6s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [ 1/12] FROM docker.io/library/python:3.10-slim@sha256:e1013c40c02a7875ae30c78c69b68ea7bee31713e8ac1c0f5469c1206258d6d7
+#4 resolve docker.io/library/python:3.10-slim@sha256:e1013c40c02a7875ae30c78c69b68ea7bee31713e8ac1c0f5469c1206258d6d7 done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 31.97kB 0.0s done
+#5 DONE 0.0s
+
+#6 [ 6/12] COPY requirements*.txt ./
+#6 CACHED
+
+#7 [ 4/12] RUN chown -R paop:paop /app
+#7 CACHED
+
+#8 [ 3/12] RUN adduser --disabled-password --gecos "" paop
+#8 CACHED
+
+#9 [ 5/12] RUN apt-get update && apt-get install -y --no-install-recommends     curl     build-essential     && rm -rf /var/lib/apt/lists/*
+#9 CACHED
+
+#10 [ 2/12] WORKDIR /app
+#10 CACHED
+
+#11 [ 7/12] RUN pip install --no-cache-dir -r requirements-external.txt
+#11 CACHED
+
+#12 [ 8/12] COPY src ./src
+#12 DONE 0.0s
+
+#13 [ 9/12] COPY config ./config
+#13 DONE 0.0s
+
+#14 [10/12] COPY scripts ./scripts
+#14 DONE 0.0s
+
+#15 [11/12] RUN chmod +x ./scripts/*.sh
+#15 DONE 0.1s
+
+#16 [12/12] RUN chown -R paop:paop /app
+#16 DONE 0.1s
+
+#17 exporting to image
+#17 exporting layers 0.1s done
+#17 exporting manifest sha256:60eb4bee9ad3370a2859d335dae42bdb3c3ef9bd15380b8780f3609d29ee91c1 done
+#17 exporting config sha256:0fc4b8195e92d7db9dcd5d08a6ff760f76a03cdd71beaceed1bb6188df37df5d done
+#17 exporting attestation manifest sha256:d87d3e68e098b87f7c7456deea1d794e4e37bb2cbe73c7385db1af58fb928f57 done
+#17 exporting manifest list sha256:e6b3c5e7af3f0bb89727912bfa6ce9411bd11444d9b7816f02b7521889f101b0 done
+#17 naming to docker.io/library/paop:dev done
+#17 unpacking to docker.io/library/paop:dev 0.0s done
+#17 DONE 0.1s
+
+ [33m1 warning found (use docker --debug to expand):
+[0m - SecretsUsedInArgOrEnv: Do not use ARG or ENV instructions for sensitive data (ENV "PAOP_API_KEY") (line 8)
+[INFO] Running Docker container...

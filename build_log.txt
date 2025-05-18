@@ -1,0 +1,199 @@
+=== PAOP System Build Log (Sun May 18 18:25:26 EDT 2025) ===
+[INFO] Checking prerequisites...
+[INFO] Found Python version: 3.12.2
+[INFO] Found Docker version: 27.5.1
+[INFO] Prerequisites check completed
+[INFO] Setting up local environment...
+[INFO] Making scripts executable...
+[INFO] Python virtual environment already exists
+[INFO] Activating virtual environment...
+[INFO] Installing dependencies...
+Requirement already satisfied: pydantic<3.0.0,>=2.0.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 2)) (2.11.4)
+Requirement already satisfied: pydantic-settings<3.0.0,>=2.0.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 3)) (2.9.1)
+Requirement already satisfied: PyYAML<7.0,>=6.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 4)) (6.0.2)
+Requirement already satisfied: pytest<8.0.0,>=7.0.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 7)) (7.4.4)
+Requirement already satisfied: pytest-cov<5.0.0,>=4.0.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 8)) (4.1.0)
+Requirement already satisfied: black<24.0.0,>=23.0.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 11)) (23.12.1)
+Requirement already satisfied: isort<6.0.0,>=5.12.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 12)) (5.13.2)
+Requirement already satisfied: flake8<7.0.0,>=6.0.0 in ./.venv/lib/python3.12/site-packages (from -r requirements.txt (line 13)) (6.1.0)
+Requirement already satisfied: annotated-types>=0.6.0 in ./.venv/lib/python3.12/site-packages (from pydantic<3.0.0,>=2.0.0->-r requirements.txt (line 2)) (0.7.0)
+Requirement already satisfied: pydantic-core==2.33.2 in ./.venv/lib/python3.12/site-packages (from pydantic<3.0.0,>=2.0.0->-r requirements.txt (line 2)) (2.33.2)
+Requirement already satisfied: typing-extensions>=4.12.2 in ./.venv/lib/python3.12/site-packages (from pydantic<3.0.0,>=2.0.0->-r requirements.txt (line 2)) (4.13.2)
+Requirement already satisfied: typing-inspection>=0.4.0 in ./.venv/lib/python3.12/site-packages (from pydantic<3.0.0,>=2.0.0->-r requirements.txt (line 2)) (0.4.0)
+Requirement already satisfied: python-dotenv>=0.21.0 in ./.venv/lib/python3.12/site-packages (from pydantic-settings<3.0.0,>=2.0.0->-r requirements.txt (line 3)) (1.1.0)
+Requirement already satisfied: iniconfig in ./.venv/lib/python3.12/site-packages (from pytest<8.0.0,>=7.0.0->-r requirements.txt (line 7)) (2.1.0)
+Requirement already satisfied: packaging in ./.venv/lib/python3.12/site-packages (from pytest<8.0.0,>=7.0.0->-r requirements.txt (line 7)) (25.0)
+Requirement already satisfied: pluggy<2.0,>=0.12 in ./.venv/lib/python3.12/site-packages (from pytest<8.0.0,>=7.0.0->-r requirements.txt (line 7)) (1.6.0)
+Requirement already satisfied: coverage>=5.2.1 in ./.venv/lib/python3.12/site-packages (from coverage[toml]>=5.2.1->pytest-cov<5.0.0,>=4.0.0->-r requirements.txt (line 8)) (7.8.0)
+Requirement already satisfied: click>=8.0.0 in ./.venv/lib/python3.12/site-packages (from black<24.0.0,>=23.0.0->-r requirements.txt (line 11)) (8.2.0)
+Requirement already satisfied: mypy-extensions>=0.4.3 in ./.venv/lib/python3.12/site-packages (from black<24.0.0,>=23.0.0->-r requirements.txt (line 11)) (1.1.0)
+Requirement already satisfied: pathspec>=0.9.0 in ./.venv/lib/python3.12/site-packages (from black<24.0.0,>=23.0.0->-r requirements.txt (line 11)) (0.12.1)
+Requirement already satisfied: platformdirs>=2 in ./.venv/lib/python3.12/site-packages (from black<24.0.0,>=23.0.0->-r requirements.txt (line 11)) (4.3.8)
+Requirement already satisfied: mccabe<0.8.0,>=0.7.0 in ./.venv/lib/python3.12/site-packages (from flake8<7.0.0,>=6.0.0->-r requirements.txt (line 13)) (0.7.0)
+Requirement already satisfied: pycodestyle<2.12.0,>=2.11.0 in ./.venv/lib/python3.12/site-packages (from flake8<7.0.0,>=6.0.0->-r requirements.txt (line 13)) (2.11.1)
+Requirement already satisfied: pyflakes<3.2.0,>=3.1.0 in ./.venv/lib/python3.12/site-packages (from flake8<7.0.0,>=6.0.0->-r requirements.txt (line 13)) (3.1.0)
+
+[notice] A new release of pip is available: 24.0 -> 25.1.1
+[notice] To update, run: pip install --upgrade pip
+[INFO] Installing the package in development mode...
+Obtaining file:///Users/psikosen/Documents/envx
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: envx
+  Building editable for envx (pyproject.toml): started
+  Building editable for envx (pyproject.toml): finished with status 'done'
+  Created wheel for envx: filename=envx-0.1.0-0.editable-py3-none-any.whl size=2558 sha256=fc769e5de8a463927573f83c531f81a1ecbfce05782a1e99a99d60a5f1203a49
+  Stored in directory: /private/var/folders/sp/pjxnsy9j58b7qzg0y73bkn_00000gn/T/pip-ephem-wheel-cache-et413jyl/wheels/01/ab/04/2273231de78724a438e33edc51223ea4f3e8fe20e139cc6e0a
+Successfully built envx
+Installing collected packages: envx
+  Attempting uninstall: envx
+    Found existing installation: envx 0.1.0
+    Uninstalling envx-0.1.0:
+      Successfully uninstalled envx-0.1.0
+Successfully installed envx-0.1.0
+
+[notice] A new release of pip is available: 24.0 -> 25.1.1
+[notice] To update, run: pip install --upgrade pip
+[INFO] Local environment setup completed
+[INFO] Building Docker image...
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.45kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.10-slim
+#2 DONE 0.3s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [ 1/12] FROM docker.io/library/python:3.10-slim@sha256:e1013c40c02a7875ae30c78c69b68ea7bee31713e8ac1c0f5469c1206258d6d7
+#4 resolve docker.io/library/python:3.10-slim@sha256:e1013c40c02a7875ae30c78c69b68ea7bee31713e8ac1c0f5469c1206258d6d7 done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 6.10kB 0.0s done
+#5 DONE 0.0s
+
+#6 [ 4/12] RUN chown -R paop:paop /app
+#6 CACHED
+
+#7 [ 5/12] RUN apt-get update && apt-get install -y --no-install-recommends     curl     build-essential     && rm -rf /var/lib/apt/lists/*
+#7 CACHED
+
+#8 [ 3/12] RUN adduser --disabled-password --gecos "" paop
+#8 CACHED
+
+#9 [ 6/12] COPY requirements*.txt ./
+#9 CACHED
+
+#10 [ 2/12] WORKDIR /app
+#10 CACHED
+
+#11 [ 7/12] RUN pip install --no-cache-dir -r requirements-external.txt
+#11 CACHED
+
+#12 [ 8/12] COPY src ./src
+#12 DONE 0.0s
+
+#13 [ 9/12] COPY config ./config
+#13 DONE 0.0s
+
+#14 [10/12] COPY scripts ./scripts
+#14 DONE 0.0s
+
+#15 [11/12] RUN chmod +x ./scripts/*.sh
+#15 DONE 0.1s
+
+#16 [12/12] RUN chown -R paop:paop /app
+#16 DONE 0.1s
+
+#17 exporting to image
+#17 exporting layers 0.0s done
+#17 exporting manifest sha256:8818af38fd2bc21d052e6ba4d2bccf7007db40e80b8f5d9c0553749adf92b16f done
+#17 exporting config sha256:de0ed6c9d75b27effc99117c524db2347f17657eec8b8776f387cb8e2461c5ec done
+#17 exporting attestation manifest sha256:5081a86ec542ed78a7ca757103f2080f9ef2e3e69999fd43175edfc84a255583 done
+#17 exporting manifest list sha256:a5cc7550034570b1bc590c4a434593676d4721cc32ee2cae39142730f9da3093 done
+#17 naming to docker.io/library/paop:dev done
+#17 unpacking to docker.io/library/paop:dev 0.0s done
+#17 DONE 0.1s
+
+ [33m1 warning found (use docker --debug to expand):
+[0m - SecretsUsedInArgOrEnv: Do not use ARG or ENV instructions for sensitive data (ENV "PAOP_API_KEY") (line 8)
+[INFO] Docker image built successfully: paop:dev
+[INFO] To run the Docker container, use: docker run -p 8000:8000 paop:dev
+[INFO] Running tests...
+[INFO] Running unit tests...
+============================= test session starts ==============================
+platform darwin -- Python 3.12.2, pytest-7.4.4, pluggy-1.6.0 -- /Users/psikosen/Documents/envx/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/psikosen/Documents/envx
+plugins: cov-4.1.0
+collecting ... collected 4 items
+
+tests/unit/models/test_agent_models.py::TestAgentModels::test_agent_config_validation PASSED [ 25%]
+tests/unit/models/test_agent_models.py::TestAgentModels::test_mcp_config_validation PASSED [ 50%]
+tests/unit/models/test_agent_models.py::TestAgentModels::test_task_definition_validation PASSED [ 75%]
+tests/unit/models/test_agent_models.py::TestAgentModels::test_task_response_validation FAILED [100%]
+
+=================================== FAILURES ===================================
+________________ TestAgentModels.test_task_response_validation _________________
+
+self = <test_agent_models.TestAgentModels testMethod=test_task_response_validation>
+
+    def test_task_response_validation(self):
+        """Test that TaskResponse properly validates input data."""
+        # Valid successful response
+        response = TaskResponse(
+            task_id="task-1",
+            agent_id="agent-1",
+            status=TaskStatus.COMPLETED,
+            result_payload={"result": "success"},
+        )
+        self.assertEqual(response.task_id, "task-1")
+        self.assertEqual(response.status, TaskStatus.COMPLETED)
+        self.assertIsNone(response.error_message)
+    
+        # Valid error response
+        response = TaskResponse(
+            task_id="task-1",
+            agent_id="agent-1",
+            status=TaskStatus.FAILED,
+            error_message="Something went wrong",
+        )
+        self.assertEqual(response.status, TaskStatus.FAILED)
+        self.assertEqual(response.error_message, "Something went wrong")
+    
+        # Inconsistent error state (failed but no error message)
+>       with self.assertRaises(ValidationError):
+E       AssertionError: ValidationError not raised
+
+tests/unit/models/test_agent_models.py:138: AssertionError
+=============================== warnings summary ===============================
+src/agent/models/base.py:49
+  /Users/psikosen/Documents/envx/src/agent/models/base.py:49: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator('is_orchestrator', always=True)
+
+src/agent/models/base.py:74
+  /Users/psikosen/Documents/envx/src/agent/models/base.py:74: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator('timeout_seconds')
+
+src/agent/models/base.py:127
+  /Users/psikosen/Documents/envx/src/agent/models/base.py:127: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator('error_message')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/models/test_agent_models.py::TestAgentModels::test_task_response_validation
+=================== 1 failed, 3 passed, 3 warnings in 0.08s ====================
+[WARN] Some unit tests failed (see log for details)
+[INFO] Tests completed
+[INFO] Build process completed successfully!

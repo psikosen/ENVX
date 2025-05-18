@@ -1,0 +1,17 @@
+# Sample Orchestrator Configuration
+
+# Agent identity
+agent_id: orchestrator-1
+role: orchestrator
+is_orchestrator: true
+name: Main Orchestrator
+description: Primary orchestrator agent for coordinating worker agents
+
+# Tools configuration
+tools:
+  - tool_id: mcp-tool
+    tool_type: mcp
+    enabled: true
+    config:
+      # Tool-specific settings
+      timeout_seconds: 30
