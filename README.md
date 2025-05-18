@@ -71,6 +71,4 @@ To make the API easier to use, we've added comprehensive Swagger documentation i
 ```
 
 ### Notes for Future Development
-1. The orchestrator and client implementations should be reviewed to ensure they don't have circular dependencies
-2. Consider refactoring to a cleaner architecture with clear separation of concerns
-3. Add more thorough testing, especially for API endpoints and orchestrator functionality
+1. The orchestrator and client implementations we have to coordinate better we are pretty close parity
