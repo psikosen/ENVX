@@ -1,0 +1,104 @@
+schema_id: inspection_report
+version: v1
+description: |
+  Building/home inspection reports. Captures inspector, systems evaluated,
+  defects, safety concerns, observed hazardous materials.
+json_schema:
+  $schema: "https://json-schema.org/draft/2020-12/schema"
+  $id: "envx://schemas/inspection_report/v1"
+  type: object
+  additionalProperties: false
+  required: [doc_type, inspector, inspection_date, property_address, systems_evaluated]
+  properties:
+    doc_type:
+      const: inspection_report
+    inspector:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name: {type: string}
+        license: {type: string}
+        firm: {type: string}
+    inspection_date: {type: string}
+    property_address: {type: string}
+    systems_evaluated:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [system, condition_rating]
+        properties:
+          system:
+            enum:
+              - roof
+              - electrical
+              - plumbing
+              - hvac
+              - structural
+              - foundation
+              - exterior
+              - interior
+          condition_rating:
+            enum: [satisfactory, marginal, poor, not_inspected]
+          defects_noted:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              required: [description, severity, page_cited]
+              properties:
+                description: {type: string}
+                severity:
+                  enum: [safety, major, minor, cosmetic]
+                recommendation: {type: string}
+                page_cited: {type: integer, minimum: 1}
+                region_id: {type: string}
+    safety_concerns:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [concern, page_cited]
+        properties:
+          concern: {type: string}
+          verbatim_quote: {type: string}
+          page_cited: {type: integer, minimum: 1}
+    hazmat_observed:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [type, page_cited]
+        properties:
+          type:
+            enum: [asbestos, lead_paint, mold, radon, other]
+          location: {type: string}
+          testing_recommended: {type: boolean}
+          page_cited: {type: integer, minimum: 1}
+marker_rules:
+  - code_template: "RISK:SAFETY"
+    when:
+      field_path: "$.systems_evaluated[*].defects_noted[*].severity"
+      equals: safety
+    confidence: 0.95
+  - code_template: "RISK:ASBESTOS"
+    when:
+      field_path: "$.hazmat_observed[*].type"
+      equals: asbestos
+    confidence: 0.9
+  - code_template: "RISK:LEAD"
+    when:
+      field_path: "$.hazmat_observed[*].type"
+      equals: lead_paint
+    confidence: 0.9
+  - code_template: "RISK:MOLD"
+    when:
+      field_path: "$.hazmat_observed[*].type"
+      equals: mold
+    confidence: 0.85
+  - code_template: "RISK:RADON"
+    when:
+      field_path: "$.hazmat_observed[*].type"
+      equals: radon
+    confidence: 0.85

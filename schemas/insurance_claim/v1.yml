@@ -1,0 +1,98 @@
+schema_id: insurance_claim
+version: v1
+description: |
+  Insurance claim files. Captures claim/policy identifiers, parties,
+  peril, damages, coverage analysis, reservation of rights, denials.
+json_schema:
+  $schema: "https://json-schema.org/draft/2020-12/schema"
+  $id: "envx://schemas/insurance_claim/v1"
+  type: object
+  additionalProperties: false
+  required: [doc_type, claim_number, policy_number, insured, insurer, date_of_loss]
+  properties:
+    doc_type:
+      const: insurance_claim
+    claim_number: {type: string}
+    policy_number: {type: string}
+    insured:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name: {type: string}
+        address: {type: string}
+    insurer:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name: {type: string}
+        policy_type: {type: string}
+    date_of_loss: {type: string}
+    date_reported: {type: string}
+    peril: {type: string}
+    loss_location: {type: string}
+    damages_claimed:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [category, page_cited]
+        properties:
+          category: {type: string}
+          amount: {type: string}
+          description: {type: string}
+          page_cited: {type: integer, minimum: 1}
+    coverage_analysis:
+      type: object
+      additionalProperties: false
+      properties:
+        covered_perils_cited:
+          type: array
+          items: {type: string}
+        exclusions_cited:
+          type: array
+          items: {type: string}
+        deductible: {type: string}
+        limits_referenced:
+          type: array
+          items: {type: string}
+        page_cited:
+          type: array
+          items: {type: integer, minimum: 1}
+    reservation_of_rights:
+      type: object
+      additionalProperties: false
+      required: [asserted]
+      properties:
+        asserted: {type: boolean}
+        grounds:
+          type: array
+          items: {type: string}
+        page_cited: {type: integer, minimum: 1}
+    denial:
+      type: object
+      additionalProperties: false
+      required: [issued]
+      properties:
+        issued: {type: boolean}
+        grounds:
+          type: array
+          items: {type: string}
+        page_cited: {type: integer, minimum: 1}
+marker_rules:
+  - code_template: "CLAUSE:RESERVATION_OF_RIGHTS"
+    when:
+      field_path: "$.reservation_of_rights.asserted"
+      equals: true
+    confidence: 0.95
+  - code_template: "CLAUSE:DENIAL"
+    when:
+      field_path: "$.denial.issued"
+      equals: true
+    confidence: 0.95
+  - code_template: "CLAUSE:EXCLUSION_CITED"
+    when:
+      field_path: "$.coverage_analysis.exclusions_cited[*]"
+      exists: true
+    confidence: 0.8

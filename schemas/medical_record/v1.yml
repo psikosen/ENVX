@@ -1,0 +1,84 @@
+schema_id: medical_record
+version: v1
+description: |
+  Medical records. Lives downstream of HIPAA controls — fields are
+  intentionally abstracted from PHI detail. Use patient initials or
+  pseudonymised ID, not full name.
+phi_tier: true
+json_schema:
+  $schema: "https://json-schema.org/draft/2020-12/schema"
+  $id: "envx://schemas/medical_record/v1"
+  type: object
+  additionalProperties: false
+  required: [doc_type, date_of_service]
+  properties:
+    doc_type:
+      const: medical_record
+    patient_initials_or_id: {type: string}
+    provider_name: {type: string}
+    provider_specialty: {type: string}
+    date_of_service: {type: string}
+    diagnoses_icd10:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [code, page_cited]
+        properties:
+          code:
+            type: string
+            pattern: "^[A-TV-Z][0-9][0-9AB](\\.[0-9A-Z]{1,4})?$"
+          description: {type: string}
+          page_cited: {type: integer, minimum: 1}
+    exposure_history_mentioned:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [substance, page_cited]
+        properties:
+          substance: {type: string}
+          duration: {type: string}
+          setting: {type: string}
+          verbatim_quote: {type: string}
+          page_cited: {type: integer, minimum: 1}
+    procedures:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [code, page_cited]
+        properties:
+          code: {type: string}
+          description: {type: string}
+          page_cited: {type: integer, minimum: 1}
+    narrative_impressions:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [impression, page_cited]
+        properties:
+          impression: {type: string}
+          page_cited: {type: integer, minimum: 1}
+marker_rules:
+  - code_template: "EXPOSURE:ASBESTOS"
+    when:
+      field_path: "$.exposure_history_mentioned[*].substance"
+      matches_any: [asbestos, acm, "asbestos-containing material"]
+    confidence: 0.9
+  - code_template: "EXPOSURE:LEAD"
+    when:
+      field_path: "$.exposure_history_mentioned[*].substance"
+      matches_any: [lead, pb]
+    confidence: 0.9
+  - code_template: "DIAGNOSIS:MESOTHELIOMA"
+    when:
+      field_path: "$.diagnoses_icd10[*].code"
+      starts_with_any: ["C45"]
+    confidence: 0.99
+  - code_template: "DIAGNOSIS:ASBESTOSIS"
+    when:
+      field_path: "$.diagnoses_icd10[*].code"
+      equals_any: ["J61"]
+    confidence: 0.99

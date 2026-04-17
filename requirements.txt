@@ -12,6 +12,13 @@ black>=23.0.0,<24.0.0
 isort>=5.12.0,<6.0.0
 flake8>=6.0.0,<7.0.0
 
+# envx preprocessing layer (v2.1 §2.5)
+jsonschema>=4.21.0,<5.0.0
+rapidfuzz>=3.6.0,<4.0.0
+httpx>=0.27.0,<1.0.0
+cryptography>=41.0.0
+cffi>=1.16.0
+
 # These would be added as needed for specific features
 # requests>=2.30.0,<3.0.0
 # fastapi>=0.100.0,<0.101.0

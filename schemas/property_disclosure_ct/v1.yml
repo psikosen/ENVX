@@ -1,0 +1,137 @@
+schema_id: property_disclosure_ct
+version: v1
+jurisdiction: CT
+description: |
+  Connecticut residential property disclosure (seller's disclosure).
+  Captures parties, property identifiers, known hazards, defects, prior claims.
+json_schema:
+  $schema: "https://json-schema.org/draft/2020-12/schema"
+  $id: "envx://schemas/property_disclosure_ct/v1"
+  type: object
+  additionalProperties: false
+  required: [doc_type, jurisdiction, property, seller, buyer, hazards_disclosed]
+  properties:
+    doc_type:
+      const: property_disclosure
+    jurisdiction:
+      const: CT
+    property:
+      type: object
+      additionalProperties: false
+      required: [address_street, address_city, address_zip]
+      properties:
+        parcel_id: {type: string}
+        address_street: {type: string}
+        address_city: {type: string}
+        address_zip: {type: string}
+        year_built: {type: string}
+        page_cited:
+          type: array
+          items: {type: integer, minimum: 1}
+    seller:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name: {type: string}
+        signature_present: {type: boolean}
+        page_cited:
+          type: array
+          items: {type: integer, minimum: 1}
+    buyer:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name: {type: string}
+        signature_present: {type: boolean}
+        page_cited:
+          type: array
+          items: {type: integer, minimum: 1}
+    execution_date: {type: string}
+    hazards_disclosed:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [type, severity, page_cited]
+        properties:
+          type: {type: string}
+          severity:
+            enum: [known, suspected, unknown, none]
+          remediation_status: {type: string}
+          verbatim_quote: {type: string}
+          page_cited: {type: integer, minimum: 1}
+    material_defects:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [system, description, page_cited]
+        properties:
+          system: {type: string}
+          description: {type: string}
+          verbatim_quote: {type: string}
+          page_cited: {type: integer, minimum: 1}
+    prior_claims_referenced:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [claim_type, page_cited]
+        properties:
+          claim_type: {type: string}
+          year: {type: string}
+          description: {type: string}
+          page_cited: {type: integer, minimum: 1}
+marker_rules:
+  - code_template: "RISK:ASBESTOS"
+    when:
+      field_path: "$.hazards_disclosed[*].type"
+      matches_any: [asbestos, acm, "asbestos-containing material"]
+    confidence_map:
+      known: 0.95
+      suspected: 0.8
+      unknown: 0.5
+      none: 0.0
+    severity_field: "severity"
+  - code_template: "RISK:LEAD"
+    when:
+      field_path: "$.hazards_disclosed[*].type"
+      matches_any: [lead, "lead paint", "lead-based paint"]
+    confidence_map:
+      known: 0.95
+      suspected: 0.8
+      unknown: 0.5
+      none: 0.0
+    severity_field: "severity"
+  - code_template: "RISK:RADON"
+    when:
+      field_path: "$.hazards_disclosed[*].type"
+      matches_any: [radon]
+    confidence_map:
+      known: 0.95
+      suspected: 0.75
+      unknown: 0.4
+      none: 0.0
+    severity_field: "severity"
+  - code_template: "RISK:MOLD"
+    when:
+      field_path: "$.hazards_disclosed[*].type"
+      matches_any: [mold, mildew]
+    confidence_map:
+      known: 0.9
+      suspected: 0.7
+      unknown: 0.4
+      none: 0.0
+    severity_field: "severity"
+  - code_template: "RISK:CONTAMINATION"
+    when:
+      field_path: "$.hazards_disclosed[*].type"
+      matches_any: [contamination, "soil contamination", "groundwater contamination"]
+    confidence_map:
+      known: 0.9
+      suspected: 0.7
+      unknown: 0.4
+      none: 0.0
+    severity_field: "severity"
