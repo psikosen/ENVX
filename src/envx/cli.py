@@ -8,6 +8,7 @@
     envx migrate  [--print]          show/apply DDL migrations
     envx doctor                      report backend availability
     envx devserver                   local embeddings/rerank endpoint
+    envx eval                        run the retrieval evaluation
 
 Runs offline by default. ``envx doctor`` shows which stages are on stub
 backends and what to set to make them real.
@@ -17,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -232,6 +234,35 @@ def cmd_devserver(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_eval(args: argparse.Namespace) -> int:
+    """Run the retrieval evaluation harness."""
+    import subprocess
+
+    repo = Path(__file__).resolve().parents[2]
+    script = repo / "eval" / "run_eval.py"
+    if not script.exists():
+        print(f"eval harness not found at {script}", file=sys.stderr)
+        return 1
+    forwarded: list[str] = []
+    config = load_config()
+    if config.embedding_url:
+        forwarded += ["--embedding-url", config.embedding_url,
+                      "--embedding-model", config.embedding_model,
+                      "--embedding-dim", str(config.embedding_dim)]
+    if config.rerank_url:
+        forwarded += ["--rerank-url", config.rerank_url,
+                      "--rerank-model", config.rerank_model]
+    if args.tags:
+        forwarded.append("--tags")
+    if args.json:
+        forwarded.append("--json")
+    return subprocess.run(
+        [sys.executable, str(script), *forwarded],
+        cwd=repo,
+        env={**os.environ, "PYTHONPATH": str(repo / "src")},
+    ).returncode
+
+
 def _pg_reachable(config) -> bool:
     """Actually connect. A configured-but-unreachable database is worse than
     an unconfigured one, because ingest would silently lose everything."""
@@ -334,6 +365,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_dev.add_argument("--port", type=int, default=8099)
     p_dev.add_argument("--dim", type=int, default=512)
     p_dev.set_defaults(func=cmd_devserver)
+
+    p_eval = sub.add_parser("eval", help="run the retrieval evaluation")
+    p_eval.add_argument("--tags", action="store_true")
+    p_eval.add_argument("--json", action="store_true")
+    p_eval.set_defaults(func=cmd_eval)
     return parser
 
 

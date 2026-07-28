@@ -89,10 +89,12 @@ src/envx/
   queue/            durable job queue
   db/migrations/    001-006 Postgres DDL
   db/repository.py  Postgres persistence
+  eval/             retrieval metrics (recall, MRR, nDCG, MAP)
 
 schemas/            5 doc-type KIE schemas (YAML + JSON Schema + marker rules)
 lexicon/hazards.yml counsel-reviewed vocabulary
-tests/envx/         88 tests (7 skip without a database)
+eval/               labeled corpus + evaluation harness
+tests/envx/         95 tests (7 skip without a database)
 ```
 
 ---
@@ -165,6 +167,21 @@ Wire real backends before drawing conclusions about retrieval quality.
 | `ENVX_EMBEDDING_API_KEY` | — | bearer token, if the endpoint needs one |
 | `ENVX_GROUNDING_MIN_RATIO` | `0.85` | fuzzy match floor for grounding |
 | `ENVX_DATABASE_URL` | — | Postgres connection string |
+
+---
+
+## Measured behaviour
+
+[evaluation.md](./evaluation.md) reports what the retrieval architecture
+actually does on a labelled 24-document corpus. Summary: lexicon expansion
+is the largest single win (+27% relative recall@1), client isolation holds
+under adversarial cross-client queries, contextual enrichment helps
+modestly — and reranking with the offline stub actively *hurts*, which is
+reported rather than hidden because detecting that is what an eval is for.
+
+```bash
+PYTHONPATH=src python -m envx.cli eval --tags
+```
 
 ---
 
@@ -376,6 +393,13 @@ WORM only), KMS-backed attestation keys, and GLM-OCR fine-tuning.
 - **Retrieval indexes are rebuilt in memory at startup.** Fine to millions
   of chunks on one box; past that, dense retrieval needs pgvector or
   VectorChord doing the search in the database rather than in Python.
-- **Retrieval quality is unmeasured.** Every component is wired and tested,
-  but no real embedding or KIE model has scored this corpus. Run ParseBench
-  and your own eval before trusting any ranking.
+- **Reranking currently degrades ranking.** The offline reranker is a
+  lexical stand-in, not a cross-encoder, and measurably discards a better
+  ordering than fusion produced. Leave it off until a real cross-encoder is
+  wired. See [evaluation.md](./evaluation.md).
+- **Hybrid fusion is unproven at this corpus size.** Dense alone matches or
+  slightly beats hybrid on 24 documents. Re-measure at scale before
+  treating fusion weights as tuned.
+- **Extraction accuracy is unmeasured.** The eval covers retrieval only.
+  Whether KIE reads the right hazard off the right page needs its own
+  labelled set.
