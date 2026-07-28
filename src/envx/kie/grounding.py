@@ -67,14 +67,22 @@ def ground_fields(
     source_text: str,
     *,
     min_ratio: float = 0.85,
+    skip_paths: set[str] | None = None,
 ) -> tuple[list[ExtractedField], GroundingReport]:
+    """Verify extracted string values appear in the source text.
+
+    ``skip_paths`` exempts fields whose value comes from schema-controlled
+    vocabulary rather than the document — see
+    ``kie.validator.controlled_vocabulary_paths``.
+    """
     haystack = normalize_for_match(source_text)
+    skip = skip_paths or set()
     out: list[ExtractedField] = []
     checked = 0
     grounded = 0
     ungrounded: list[str] = []
     for f in fields:
-        if not _should_check(f.field_path, f.value):
+        if f.field_path in skip or not _should_check(f.field_path, f.value):
             out.append(f)
             continue
         checked += 1

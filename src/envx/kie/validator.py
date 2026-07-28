@@ -126,6 +126,7 @@ class KIEValidator:
                 fields,
                 source_text,
                 min_ratio=self.config.grounding_min_ratio,
+                skip_paths=controlled_vocabulary_paths(raw_json, schema.json_schema),
             )
 
         missing_citations = _missing_page_citations(raw_json, schema.json_schema)
@@ -155,6 +156,47 @@ class KIEValidator:
             schema_errors=schema_errors,
             missing_page_citations=missing_citations,
         )
+
+
+def controlled_vocabulary_paths(
+    payload: dict[str, Any],
+    schema: dict[str, Any],
+) -> set[str]:
+    """Field paths whose value comes from the schema, not the document.
+
+    ``const`` and ``enum`` fields carry controlled vocabulary — ``doc_type:
+    "property_disclosure"``, ``severity: "known"``, ``report_type:
+    "phase_i"``. These are classifications the model assigns from a fixed
+    list; they are not quotes and will almost never appear verbatim in the
+    source. Grounding-checking them produces false failures that push clean
+    documents into human review, which is exactly the noise that trains
+    reviewers to ignore the queue.
+    """
+    out: set[str] = set()
+    _scan_controlled(payload, schema, "$", out)
+    return out
+
+
+def _scan_controlled(
+    node: Any,
+    schema: dict[str, Any] | None,
+    path: str,
+    out: set[str],
+) -> None:
+    if not isinstance(schema, dict):
+        return
+    if "const" in schema or "enum" in schema:
+        out.add(path)
+        return
+    node_type = schema.get("type")
+    if node_type == "object" and isinstance(node, dict):
+        props = schema.get("properties") or {}
+        for key, value in node.items():
+            _scan_controlled(value, props.get(key), f"{path}.{key}", out)
+    elif node_type == "array" and isinstance(node, list):
+        items = schema.get("items") or {}
+        for i, value in enumerate(node):
+            _scan_controlled(value, items, f"{path}[{i}]", out)
 
 
 def _missing_page_citations(payload: dict[str, Any], schema: dict[str, Any]) -> list[str]:

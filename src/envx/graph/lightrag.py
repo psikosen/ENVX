@@ -173,7 +173,10 @@ def build_graph_from_kie(
     resolver: EntityResolver,
     graph: KnowledgeGraph | None = None,
 ) -> KnowledgeGraph:
-    graph = graph or KnowledgeGraph()
+    # Must be an identity check: KnowledgeGraph defines __len__, so an empty
+    # graph is falsy and `graph or KnowledgeGraph()` would silently discard
+    # the caller's accumulator on the first document.
+    graph = graph if graph is not None else KnowledgeGraph()
 
     doc_node_id = f"doc:{doc_id}"
     graph.add_node(
