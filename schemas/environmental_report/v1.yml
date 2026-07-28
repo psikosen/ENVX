@@ -1,0 +1,111 @@
+schema_id: environmental_report
+version: v1
+description: |
+  Environmental Site Assessments (Phase I/II/III, limited). Captures preparer,
+  property identifiers, Recognized Environmental Conditions, sampling results,
+  regulatory status, and conclusions.
+json_schema:
+  $schema: "https://json-schema.org/draft/2020-12/schema"
+  $id: "envx://schemas/environmental_report/v1"
+  type: object
+  additionalProperties: false
+  required: [doc_type, report_type, property, conclusions]
+  properties:
+    doc_type:
+      const: environmental_report
+    report_type:
+      enum: [phase_i, phase_ii, phase_iii, limited]
+    preparer_firm: {type: string}
+    preparer_license: {type: string}
+    property:
+      type: object
+      additionalProperties: false
+      required: [address]
+      properties:
+        parcel_id: {type: string}
+        address: {type: string}
+        legal_description: {type: string}
+        page_cited:
+          type: array
+          items: {type: integer, minimum: 1}
+    investigation_dates:
+      type: object
+      additionalProperties: false
+      properties:
+        field_work: {type: string}
+        report: {type: string}
+    recs:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [rec_type, condition, page_cited]
+        properties:
+          rec_type:
+            enum: [historical, current, controlled]
+          condition: {type: string}
+          location_on_property: {type: string}
+          verbatim_quote: {type: string}
+          page_cited: {type: integer, minimum: 1}
+    sampling_results:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [medium, analyte, page_cited]
+        properties:
+          medium:
+            enum: [soil, groundwater, air, building_material]
+          analyte: {type: string}
+          concentration: {type: string}
+          unit: {type: string}
+          exceeds_standard: {type: boolean}
+          standard_referenced: {type: string}
+          page_cited: {type: integer, minimum: 1}
+    regulatory_status:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [agency, page_cited]
+        properties:
+          agency:
+            enum: [EPA, CTDEEP, local]
+          program: {type: string}
+          status: {type: string}
+          page_cited: {type: integer, minimum: 1}
+    conclusions:
+      type: object
+      additionalProperties: false
+      required: [has_recs, requires_phase_ii]
+      properties:
+        has_recs: {type: boolean}
+        requires_phase_ii: {type: boolean}
+        verbatim_conclusion: {type: string}
+        page_cited: {type: integer, minimum: 1}
+marker_rules:
+  - code_template: "FINDING:REC"
+    when:
+      field_path: "$.recs[*]"
+      exists: true
+    confidence: 0.9
+  - code_template: "RISK:EXCEEDANCE"
+    when:
+      field_path: "$.sampling_results[*].exceeds_standard"
+      equals: true
+    confidence: 0.95
+  - code_template: "PROCESS:PHASE_II_REQUIRED"
+    when:
+      field_path: "$.conclusions.requires_phase_ii"
+      equals: true
+    confidence: 0.95
+  - code_template: "RISK:ASBESTOS"
+    when:
+      field_path: "$.sampling_results[*].analyte"
+      matches_any: [asbestos, acm, "asbestos-containing material"]
+    confidence: 0.9
+  - code_template: "RISK:LEAD"
+    when:
+      field_path: "$.sampling_results[*].analyte"
+      matches_any: [lead, pb]
+    confidence: 0.9

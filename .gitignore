@@ -23,6 +23,10 @@ docker-compose.override.yml
 .vscode/
 .idea/
 
+# envx runtime artifacts
+var/
+!var/.gitkeep
+
 # Logs
 logs/
 *.log
