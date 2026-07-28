@@ -99,6 +99,16 @@ class EntityResolver:
     def all(self) -> list[CanonicalEntity]:
         return list(self._by_key.values())
 
+    def adopt(self, entity: CanonicalEntity) -> None:
+        """Load a previously resolved identity into the resolver.
+
+        Used when restoring from storage. Without this, a restart would mint
+        fresh canonical ids for entities already known, silently forking one
+        identity into two and breaking cross-document synthesis — the exact
+        failure canonicalization exists to prevent.
+        """
+        self._by_key[(entity.entity_type, entity.normalized_key)] = entity
+
     def resolve(self, mention: EntityMention) -> Resolution:
         key = normalize_entity_key(mention.surface_form, mention.entity_type)
         if not key:

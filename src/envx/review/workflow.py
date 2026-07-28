@@ -145,6 +145,7 @@ class ReviewQueue:
 
     def __init__(self) -> None:
         self._items: dict[str, ReviewItem] = {}
+        self._doc_uuids: dict[str, str] = {}
         self._log: list[Correction] = []
 
     @property
@@ -153,6 +154,19 @@ class ReviewQueue:
 
     def pending(self) -> list[ReviewItem]:
         return [i for i in self._items.values() if i.resolved_at is None]
+
+    def adopt(self, doc_uuid: str, item: ReviewItem) -> None:
+        """Load a stored review item back into the queue.
+
+        Keyed by the item's own doc_id so in-process lookups keep working;
+        ``doc_uuid`` is retained so a correction can be written back to the
+        right database row.
+        """
+        self._items[item.doc_id] = item
+        self._doc_uuids[item.doc_id] = doc_uuid
+
+    def doc_uuid(self, doc_id: str) -> str | None:
+        return self._doc_uuids.get(doc_id)
 
     def get(self, doc_id: str) -> ReviewItem | None:
         return self._items.get(doc_id)

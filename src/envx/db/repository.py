@@ -28,8 +28,12 @@ from dataclasses import dataclass
 from typing import Any, Iterable, Sequence
 
 from ..chunking import Chunk
+from ..entities import CanonicalEntity
+from ..graph import GraphEdge, GraphNode, KnowledgeGraph
 from ..models import Marker, Region
 from ..retrieval import IndexedChunk
+from ..review import Correction, ReviewItem, ReviewState, ReviewTrigger
+from ..wet_storage import doc_id_for
 
 
 def psycopg_available() -> bool:
@@ -133,9 +137,9 @@ class PostgresRepository:
 
     def _upsert_document(self, conn, doc: DocumentRecord) -> str:
         row = conn.execute(
-            "INSERT INTO documents (sha256, client_id, matter_id, doc_type,"
+            "INSERT INTO documents (doc_id, sha256, client_id, matter_id, doc_type,"
             " doc_type_confidence, page_count, original_filename, language)"
-            " VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
+            " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
             " ON CONFLICT (sha256) DO UPDATE SET"
             "   client_id = EXCLUDED.client_id,"
             "   matter_id = EXCLUDED.matter_id,"
@@ -144,6 +148,7 @@ class PostgresRepository:
             "   page_count = EXCLUDED.page_count"
             " RETURNING doc_id",
             (
+                doc_id_for(doc.sha256),
                 bytes.fromhex(doc.sha256),
                 doc.client_id,
                 doc.matter_id,
@@ -352,6 +357,228 @@ class PostgresRepository:
             ).fetchall()
         return {r[0]: float(r[1]) for r in rows}
 
+    # -------------------------------------------------------------- graph
+    def save_graph(
+        self,
+        graph: KnowledgeGraph,
+        *,
+        entities: Sequence[CanonicalEntity] = (),
+    ) -> None:
+        """Upsert the whole graph.
+
+        The graph is an accumulator over every document, so this is an upsert
+        of the current state rather than a per-document delta. Edges carry
+        their justifying doc_id and are uniquely keyed on
+        (source, target, relation, doc_id), so re-ingesting a document
+        rewrites its own edges without disturbing anyone else's.
+        """
+        with self._connect() as conn:
+            with conn.transaction():
+                for node in graph.nodes:
+                    conn.execute(
+                        "INSERT INTO graph_nodes (node_id, node_type, label, attributes)"
+                        " VALUES (%s,%s,%s,%s)"
+                        " ON CONFLICT (node_id) DO UPDATE SET"
+                        "   label = EXCLUDED.label,"
+                        "   attributes = EXCLUDED.attributes,"
+                        "   updated_at = now()",
+                        (
+                            node.node_id,
+                            node.node_type,
+                            node.label,
+                            json.dumps(_jsonable(node.attributes)),
+                        ),
+                    )
+                for edge in graph.edges:
+                    conn.execute(
+                        "INSERT INTO graph_edges (source_id, target_id, relation, doc_id)"
+                        " VALUES (%s,%s,%s,%s)"
+                        " ON CONFLICT (source_id, target_id, relation, doc_id) DO NOTHING",
+                        (edge.source, edge.target, edge.relation, edge.doc_id),
+                    )
+                for entity in entities:
+                    conn.execute(
+                        "INSERT INTO entity_canonical (canonical_id, entity_type,"
+                        " display_name, aliases, normalized_key, attributes, graph_node_id)"
+                        " VALUES (%s,%s,%s,%s,%s,%s,%s)"
+                        " ON CONFLICT (entity_type, normalized_key) DO UPDATE SET"
+                        "   display_name = EXCLUDED.display_name,"
+                        "   aliases = EXCLUDED.aliases,"
+                        "   graph_node_id = EXCLUDED.graph_node_id",
+                        (
+                            entity.canonical_id,
+                            entity.entity_type,
+                            entity.display_name,
+                            sorted(entity.aliases),
+                            entity.normalized_key,
+                            json.dumps(_jsonable(entity.attributes)),
+                            f"entity:{entity.canonical_id}",
+                        ),
+                    )
+
+    def load_graph(self) -> KnowledgeGraph:
+        graph = KnowledgeGraph()
+        with self._connect() as conn:
+            nodes = conn.execute(
+                "SELECT node_id, node_type, label, attributes FROM graph_nodes"
+            ).fetchall()
+            edges = conn.execute(
+                "SELECT source_id, target_id, relation, doc_id FROM graph_edges"
+            ).fetchall()
+        for node_id, node_type, label, attributes in nodes:
+            graph.add_node(
+                GraphNode(
+                    node_id=node_id,
+                    node_type=node_type,
+                    label=label,
+                    attributes=attributes or {},
+                )
+            )
+        for source, target, relation, doc_id in edges:
+            # Skip dangling edges rather than raising: a node deleted by a
+            # cascade should degrade the graph, not block startup.
+            if graph.node(source) is None or graph.node(target) is None:
+                continue
+            graph.add_edge(
+                GraphEdge(
+                    source=source,
+                    target=target,
+                    relation=relation,
+                    doc_id=str(doc_id),
+                )
+            )
+        return graph
+
+    def load_canonical_entities(self) -> list[CanonicalEntity]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT canonical_id, entity_type, display_name, aliases,"
+                " normalized_key, attributes FROM entity_canonical"
+            ).fetchall()
+        return [
+            CanonicalEntity(
+                canonical_id=str(r[0]),
+                entity_type=r[1],
+                display_name=r[2],
+                aliases=set(r[3] or ()),
+                normalized_key=r[4],
+                attributes=r[5] or {},
+            )
+            for r in rows
+        ]
+
+    # ------------------------------------------------------------- review
+    def save_review_item(self, item: ReviewItem, *, doc_uuid: str) -> None:
+        """Upsert the open review item for a document.
+
+        A partial unique index keeps at most one unresolved item per
+        document, so re-ingesting refreshes the reviewer's queue rather than
+        stacking duplicates of the same problem.
+        """
+        with self._connect() as conn:
+            conn.execute(
+                "INSERT INTO review_items (doc_id, state, triggers, matter_active, notes)"
+                " VALUES (%s,%s,%s,%s,%s)"
+                " ON CONFLICT (doc_id) WHERE resolved_at IS NULL DO UPDATE SET"
+                "   state = EXCLUDED.state,"
+                "   triggers = EXCLUDED.triggers,"
+                "   matter_active = EXCLUDED.matter_active,"
+                "   notes = EXCLUDED.notes",
+                (
+                    doc_uuid,
+                    item.state.value,
+                    [t.value for t in item.triggers],
+                    item.matter_is_active,
+                    item.notes or None,
+                ),
+            )
+            conn.commit()
+
+    def load_review_items(self, *, open_only: bool = True) -> list[tuple[str, ReviewItem]]:
+        sql = (
+            "SELECT doc_id, state, triggers, matter_active, notes, resolved_by"
+            "  FROM review_items"
+        )
+        if open_only:
+            sql += " WHERE resolved_at IS NULL"
+        with self._connect() as conn:
+            rows = conn.execute(sql).fetchall()
+        out: list[tuple[str, ReviewItem]] = []
+        for doc_id, state, triggers, matter_active, notes, resolved_by in rows:
+            out.append(
+                (
+                    str(doc_id),
+                    ReviewItem(
+                        doc_id=str(doc_id),
+                        state=ReviewState(state),
+                        triggers=tuple(_safe_triggers(triggers)),
+                        matter_is_active=bool(matter_active),
+                        notes=notes or "",
+                        resolved_by=resolved_by,
+                    ),
+                )
+            )
+        return out
+
+    def save_correction(self, correction: Correction, *, doc_uuid: str) -> None:
+        """Append a correction.
+
+        The two-person CHECK and the append-only trigger live in the
+        database, so an invalid correction is rejected here even if the
+        application layer were bypassed entirely.
+        """
+        with self._connect() as conn:
+            conn.execute(
+                "INSERT INTO corrections (correction_id, doc_id, field_path,"
+                " old_value, new_value, reason, corrected_by, approved_by,"
+                " affects_high_severity, supersedes)"
+                " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                (
+                    correction.correction_id,
+                    doc_uuid,
+                    correction.field_path,
+                    json.dumps(_jsonable(correction.old_value)),
+                    json.dumps(_jsonable(correction.new_value)),
+                    correction.reason,
+                    correction.corrected_by,
+                    correction.approved_by,
+                    correction.affects_high_severity,
+                    correction.supersedes,
+                ),
+            )
+            conn.commit()
+
+    def corrections_for(self, doc_uuid: str) -> list[dict[str, Any]]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT correction_id, field_path, old_value, new_value, reason,"
+                " corrected_by, approved_by, affects_high_severity, created_at"
+                "  FROM corrections WHERE doc_id = %s ORDER BY created_at",
+                (doc_uuid,),
+            ).fetchall()
+        return [
+            {
+                "correction_id": str(r[0]),
+                "field_path": r[1],
+                "old_value": r[2],
+                "new_value": r[3],
+                "reason": r[4],
+                "corrected_by": r[5],
+                "approved_by": r[6],
+                "affects_high_severity": r[7],
+                "created_at": r[8].isoformat() if r[8] else None,
+            }
+            for r in rows
+        ]
+
+    def doc_uuid_for_sha(self, sha256: str) -> str | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT doc_id FROM documents WHERE sha256 = %s",
+                (bytes.fromhex(sha256),),
+            ).fetchone()
+        return str(row[0]) if row else None
+
     def apply_migrations(self, migration_dir) -> list[str]:
         from pathlib import Path
 
@@ -362,3 +589,29 @@ class PostgresRepository:
                 applied.append(path.name)
             conn.commit()
         return applied
+
+
+def _jsonable(value: Any) -> Any:
+    """Coerce dataclass/enum leftovers into something json.dumps accepts."""
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, dict):
+        return {str(k): _jsonable(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple, set)):
+        return [_jsonable(v) for v in value]
+    return str(value)
+
+
+def _safe_triggers(values: Any) -> list[ReviewTrigger]:
+    """Ignore trigger names this build no longer knows about.
+
+    Trigger vocabulary evolves; a row written by a newer build must not stop
+    an older one from reading its own review queue.
+    """
+    out: list[ReviewTrigger] = []
+    for value in values or ():
+        try:
+            out.append(ReviewTrigger(value))
+        except ValueError:
+            continue
+    return out

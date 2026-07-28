@@ -43,6 +43,23 @@ def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+# Stable namespace for deriving document ids. Changing it re-identifies every
+# document in the corpus, so it is a constant, not configuration.
+ENVX_DOC_NAMESPACE = uuid.UUID("6f0f3d1e-9f1a-5a3b-8c2d-4e5f60718293")
+
+
+def doc_id_for(sha256: str) -> str:
+    """Derive a document's id from its content hash.
+
+    UUIDv5 rather than a random uuid so identity is content-addressed
+    end to end: the same bytes always produce the same id, in-process and in
+    the database. Without this the application and the database each invent
+    their own identifier for the same document, and every foreign key
+    between them becomes a translation step waiting to be forgotten.
+    """
+    return str(uuid.uuid5(ENVX_DOC_NAMESPACE, sha256))
+
+
 def _utcnow() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="microseconds")
 

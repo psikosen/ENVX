@@ -50,7 +50,7 @@ from .retrieval import (
 from .review import ReviewQueue, ReviewState, evaluate_triggers
 from .schemas import DocSchema, SchemaLoader, SchemaNotFound
 from .visual import StubVisualBackend, VisualRetriever
-from .wet_storage import BlobRef, WetStore
+from .wet_storage import BlobRef, WetStore, doc_id_for
 
 
 @dataclass
@@ -155,6 +155,8 @@ class EnvxApp:
             self.repo = PostgresRepository(self.config.database_url)
             self._rehydrate()
 
+        # Built last: _rehydrate() may replace self.graph wholesale, and the
+        # executor must hold the restored instance, not the empty one.
         self.executor = PlanExecutor(
             retriever=self.retriever,
             reranker=self.reranker,
@@ -180,7 +182,7 @@ class EnvxApp:
             extension,
             {"client_id": client_id, "matter_id": matter_id, "filename": filename},
         )
-        doc_id = blob.sha256[:32]
+        doc_id = doc_id_for(blob.sha256)
         self.jobs.enqueue(
             JobType.INTAKE, {"doc_id": doc_id}, idempotency_key=blob.sha256
         )
@@ -450,6 +452,16 @@ class EnvxApp:
         """
         if self.repo is None:
             return 0
+
+        # Graph, canonical entities, and the review queue restore as stored
+        # state; the retrieval index is rebuilt, since stored vectors may
+        # come from a superseded embedding model (§4.3).
+        self.graph = self.repo.load_graph()
+        for entity in self.repo.load_canonical_entities():
+            self.resolver.adopt(entity)
+        for doc_uuid, item in self.repo.load_review_items():
+            self.review.adopt(doc_uuid, item)
+
         rows = self.repo.load_index_rows()
         if not rows:
             return 0
@@ -509,6 +521,10 @@ class EnvxApp:
             schema_ref=(schema.schema_id, schema.version) if schema else None,
             kie_run_id=result.kie_run_id,
         )
+        self.repo.save_graph(self.graph, entities=self.resolver.all())
+        item = self.review.get(result.doc_id)
+        if item is not None:
+            self.repo.save_review_item(item, doc_uuid=result.doc_id)
 
     # ------------------------------------------------------------- query
     def query(self, plan: RetrievalPlan) -> ExecutionResult:

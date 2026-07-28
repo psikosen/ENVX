@@ -101,3 +101,65 @@ def test_reingest_is_idempotent(clean_db):
     with psycopg.connect(DSN) as conn:
         count = conn.execute("SELECT count(*) FROM documents").fetchone()[0]
     assert count == 1, "content-addressed ingest must not duplicate"
+
+
+def test_graph_and_entities_survive_restart(clean_db):
+    from envx.app import EnvxApp
+
+    disclosure = DOC
+    esa = b"""PHASE I ENVIRONMENTAL SITE ASSESSMENT
+
+Prepared under ASTM E1527.
+Property: 123 Elm St, Hartford, CT.
+
+A recognized environmental condition was identified.
+"""
+    writer = EnvxApp(config=_config(Path(tempfile.mkdtemp())))
+    writer.ingest(content=disclosure, filename="seller_disclosure_2024.pdf", client_id="ACME")
+    writer.ingest(content=esa, filename="PhaseI_ESA_final.pdf", client_id="ACME")
+    nodes, edges = len(writer.graph), len(writer.graph.edges)
+    ids_before = sorted(e.canonical_id for e in writer.resolver.all())
+    assert nodes and edges
+
+    reader = EnvxApp(config=_config(Path(tempfile.mkdtemp())))
+    assert len(reader.graph) == nodes
+    assert len(reader.graph.edges) == edges
+    # Canonical ids must be stable, or a restart forks one identity into two
+    # and cross-document synthesis silently breaks.
+    assert sorted(e.canonical_id for e in reader.resolver.all()) == ids_before
+
+    # The shared property links both documents after restore.
+    reachable = reader.graph.documents_reachable(start_entity_names=["123 Elm"])
+    assert len({doc_id for doc_id, _ in reachable}) == 2
+
+
+def test_review_queue_survives_restart(clean_db):
+    from envx.app import EnvxApp
+
+    hallucinated = DOC.replace(b"Seller: Jane Roe.", b"Seller: Someone Else Entirely.")
+    writer = EnvxApp(config=_config(Path(tempfile.mkdtemp())))
+    result = writer.ingest(
+        content=hallucinated, filename="seller_disclosure_2024.pdf", client_id="ACME"
+    )
+    assert result.needs_review
+
+    reader = EnvxApp(config=_config(Path(tempfile.mkdtemp())))
+    pending = reader.review.pending()
+    assert len(pending) == 1
+    assert pending[0].doc_id == result.doc_id
+    assert pending[0].state is result.review_state
+
+
+def test_document_id_is_content_addressed(clean_db):
+    import psycopg
+    from envx.app import EnvxApp
+    from envx.wet_storage import doc_id_for, sha256_bytes
+
+    app = EnvxApp(config=_config(Path(tempfile.mkdtemp())))
+    result = app.ingest(content=DOC, filename="a.pdf", client_id="ACME")
+    # The application id and the database primary key must be the same value;
+    # two identity schemes for one document is a foreign key waiting to break.
+    assert result.doc_id == doc_id_for(sha256_bytes(DOC))
+    with psycopg.connect(DSN) as conn:
+        row = conn.execute("SELECT doc_id FROM documents").fetchone()
+    assert str(row[0]) == result.doc_id
