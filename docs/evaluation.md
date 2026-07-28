@@ -109,11 +109,23 @@ The harness takes any OpenAI-compatible endpoint, so a real measurement is
 one command away:
 
 ```bash
-# The server must be up before pulling — `ollama pull` is a client command
-# that talks to it. Skip this if Ollama already runs as a service.
+./scripts/eval_with_ollama.sh            # defaults to bge-m3
+./scripts/eval_with_ollama.sh nomic-embed-text
+```
+
+The script starts Ollama only if it is not already running (on macOS the
+desktop app runs it, so a bare `ollama serve` exits 1 — that is success, not
+failure), pulls the model if missing, and **detects the embedding dimension
+rather than assuming it**. A wrong `ENVX_EMBEDDING_DIM` is the most common
+setup failure and the value differs per model: bge-m3 and mxbai-embed-large
+are 1024, nomic-embed-text is 768.
+
+The equivalent by hand:
+
+```bash
+# Skip `ollama serve` if it is already running as a service.
 ollama serve &
 until curl -sf http://127.0.0.1:11434/api/tags >/dev/null; do sleep 1; done
-
 ollama pull bge-m3
 
 export ENVX_EMBEDDING_URL=http://127.0.0.1:11434
