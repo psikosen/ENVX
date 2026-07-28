@@ -1,0 +1,124 @@
+# Legal-domain lexicon (architecture §7).
+#
+# Two uses:
+#   1. Query expansion at retrieval — BM25 OR-expands surface forms,
+#      abbreviations, and related terms.
+#   2. Marker-rule supplement — when a KIE schema has no field for a hazard
+#      variant but the lexicon does.
+#
+# KIE schemas are the primary extractor. This is the fallback and the
+# query-side vocabulary, not a competing source of truth.
+#
+# Reviewed by counsel. Changes are versioned in git; boosts affect ranking
+# and should not be edited casually.
+
+version: v1
+
+terms:
+  asbestos:
+    surface_forms: ["asbestos", "asbestos-containing material", "asbestos containing material"]
+    abbreviations: ["ACM", "ACBM", "RACM"]
+    related:
+      - friable
+      - non-friable
+      - vermiculite
+      - pipe insulation
+      - pipe lagging
+      - boiler insulation
+      - transite
+      - popcorn ceiling
+      - abatement
+      - encapsulation
+    regulatory_refs: ["40 CFR Part 61 Subpart M", "29 CFR 1926.1101", "AHERA"]
+    boost: 1.5
+
+  lead:
+    surface_forms: ["lead", "lead paint", "lead-based paint"]
+    abbreviations: ["LBP", "Pb"]
+    related:
+      - deteriorated paint
+      - chipping paint
+      - lead dust
+      - lead service line
+      - soil lead
+      - abatement
+      - RRP rule
+    regulatory_refs: ["40 CFR Part 745", "24 CFR Part 35", "Title X"]
+    boost: 1.4
+
+  radon:
+    surface_forms: ["radon"]
+    abbreviations: ["Rn"]
+    related:
+      - picocuries
+      - pCi/L
+      - sub-slab depressurization
+      - mitigation system
+      - short-term test
+      - long-term test
+    regulatory_refs: ["EPA 402-K-12-002"]
+    boost: 1.3
+
+  mold:
+    surface_forms: ["mold", "mould", "mildew"]
+    abbreviations: []
+    related:
+      - stachybotrys
+      - aspergillus
+      - water intrusion
+      - moisture intrusion
+      - microbial growth
+      - remediation
+      - elevated humidity
+    regulatory_refs: []
+    boost: 1.2
+
+  contamination:
+    surface_forms: ["contamination", "soil contamination", "groundwater contamination"]
+    abbreviations: ["REC", "HREC", "CREC"]
+    related:
+      - underground storage tank
+      - UST
+      - petroleum release
+      - solvent plume
+      - chlorinated solvents
+      - TCE
+      - PCE
+      - heavy metals
+      - exceedance
+      - remediation
+    regulatory_refs: ["ASTM E1527", "CGS 22a-134", "RCRA", "CERCLA"]
+    boost: 1.5
+
+  pfas:
+    surface_forms: ["PFAS", "per- and polyfluoroalkyl substances", "forever chemicals"]
+    abbreviations: ["PFOA", "PFOS", "PFBS", "GenX"]
+    related:
+      - aqueous film-forming foam
+      - AFFF
+      - drinking water advisory
+      - maximum contaminant level
+    regulatory_refs: ["40 CFR Part 141"]
+    boost: 1.4
+
+clauses:
+  indemnity:
+    surface_forms: ["indemnity", "indemnification", "hold harmless"]
+    related: ["defend", "indemnitor", "indemnitee", "duty to defend"]
+    boost: 1.3
+
+  exclusion:
+    surface_forms: ["exclusion", "excluded", "does not cover"]
+    related: ["pollution exclusion", "mold exclusion", "wear and tear", "absolute exclusion"]
+    boost: 1.3
+
+  reservation_of_rights:
+    surface_forms: ["reservation of rights", "reserving all rights"]
+    abbreviations: ["ROR"]
+    related: ["non-waiver", "coverage position", "disclaim"]
+    boost: 1.4
+
+  as_is:
+    surface_forms: ["as is", "as-is", "with all faults"]
+    related: ["no warranty", "disclaimer of warranties", "caveat emptor"]
+    boost: 1.2
