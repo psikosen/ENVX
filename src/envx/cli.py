@@ -7,6 +7,7 @@
     envx lexicon  -q TEXT            show query expansion for a phrase
     envx migrate  [--print]          show/apply DDL migrations
     envx doctor                      report backend availability
+    envx devserver                   local embeddings/rerank endpoint
 
 Runs offline by default. ``envx doctor`` shows which stages are on stub
 backends and what to set to make them real.
@@ -218,6 +219,19 @@ def cmd_migrate(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_devserver(args: argparse.Namespace) -> int:
+    """Serve deterministic embeddings locally.
+
+    Lets the HTTP-backed paths — embeddings, rerank, and LEANN's cold-tier
+    index build — run without a GPU or an API key. Point ENVX_EMBEDDING_URL
+    and ENVX_RERANK_URL at it.
+    """
+    from .devserver import serve
+
+    serve(host=args.host, port=args.port, dim=args.dim)
+    return 0
+
+
 def _pg_reachable(config) -> bool:
     """Actually connect. A configured-but-unreachable database is worse than
     an unconfigured one, because ingest would silently lose everything."""
@@ -248,7 +262,12 @@ def cmd_doctor(args: argparse.Namespace) -> int:
         ("LiteParse Tier A", liteparse_on_path(), "install liteparse CLI", "text stub"),
         ("Embeddings", bool(config.embedding_url), "ENVX_EMBEDDING_URL", "hashing stub"),
         ("Reranker", bool(config.rerank_url), "ENVX_RERANK_URL", "lexical stub"),
-        ("Cold tier (LEANN)", leann_available(), "pip install leann", "null store"),
+        (
+            "Cold tier (LEANN)",
+            leann_available() and bool(config.embedding_url),
+            "pip install leann + ENVX_EMBEDDING_URL",
+            "null store" if not leann_available() else "LEANN default model download",
+        ),
         ("Postgres", _pg_reachable(config), "ENVX_DATABASE_URL", "in-memory only"),
     ]
     width = max(len(name) for name, *_ in checks)
@@ -262,6 +281,7 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     print(f"wet root: {config.wet_root}")
     if config.offline:
         print("\nRunning fully offline. Results exercise the pipeline, not model quality.")
+        print("Start a local endpoint with:  python -m envx.cli devserver")
     return 0
 
 
@@ -308,6 +328,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_doc = sub.add_parser("doctor", help="report backend availability")
     p_doc.set_defaults(func=cmd_doctor)
+
+    p_dev = sub.add_parser("devserver", help="local embeddings/rerank endpoint")
+    p_dev.add_argument("--host", default="127.0.0.1")
+    p_dev.add_argument("--port", type=int, default=8099)
+    p_dev.add_argument("--dim", type=int, default=512)
+    p_dev.set_defaults(func=cmd_devserver)
     return parser
 
 

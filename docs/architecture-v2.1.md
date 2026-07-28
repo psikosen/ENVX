@@ -60,7 +60,8 @@ The LLM plans and reads evidence. It never fetches.
 ```
 src/envx/
   app.py            EnvxApp — ingest() and query()
-  cli.py            envx ingest|query|plan|schemas|lexicon|migrate|doctor
+  cli.py            envx ingest|query|plan|schemas|lexicon|migrate|doctor|devserver
+  devserver.py      local OpenAI-compatible embeddings + rerank endpoint
   config.py         environment-driven configuration
   pipeline.py       preprocessing-only pipeline (subset of app.ingest)
 
@@ -91,7 +92,7 @@ src/envx/
 
 schemas/            5 doc-type KIE schemas (YAML + JSON Schema + marker rules)
 lexicon/hazards.yml counsel-reviewed vocabulary
-tests/envx/         79 tests (7 skip without a database)
+tests/envx/         85 tests (7 skip without a database)
 ```
 
 ---
@@ -109,6 +110,21 @@ python -m envx.cli lexicon -q "asbestos"
 python -m envx.cli migrate --print
 pytest tests/envx
 ```
+
+To exercise the HTTP-backed paths without a GPU or an API key, run the local
+inference endpoint:
+
+```bash
+python -m envx.cli devserver &                 # :8099
+export ENVX_EMBEDDING_URL=http://127.0.0.1:8099
+export ENVX_RERANK_URL=http://127.0.0.1:8099
+python -m envx.cli doctor                      # embeddings/rerank now live
+```
+
+It serves deterministic hashing vectors over the OpenAI embeddings and TEI
+rerank APIs. Not a model — a stand-in that makes the *integration* real, so
+those code paths are tested rather than assumed. It is also what the cold
+tier points LEANN at.
 
 With Postgres, ingest and query become independent:
 
@@ -146,6 +162,7 @@ Wire real backends before drawing conclusions about retrieval quality.
 | `ENVX_EMBEDDING_DIM` | `1024` | must match the index |
 | `ENVX_RERANK_URL` | — | `/rerank` endpoint |
 | `ENVX_RERANK_MODEL` | `zerank-2` | reranker |
+| `ENVX_EMBEDDING_API_KEY` | — | bearer token, if the endpoint needs one |
 | `ENVX_GROUNDING_MIN_RATIO` | `0.85` | fuzzy match floor for grounding |
 | `ENVX_DATABASE_URL` | — | Postgres connection string |
 
@@ -249,6 +266,15 @@ applies during traversal. Optional dependency; without it the store degrades
 to a null backend that reports cold as unsearchable rather than silently
 returning nothing.
 
+**Embedding backend.** Because LEANN recomputes embeddings during traversal,
+it needs a model at both build and query time. Its default pulls
+`facebook/contriever` from HuggingFace, which is wrong here twice over: it
+adds a model download to deployment, and it embeds the cold tier with a
+*different* model than the hot tier, making cold and hot scores
+incomparable. ENVX instead points LEANN's `openai` embedding mode at the
+same endpoint configured by `ENVX_EMBEDDING_URL`. One model, one vector
+space, no model download.
+
 ### Benchmarking
 
 Migrate all OCR numbers to **OmniDocBench v1.6**. Use **ParseBench**
@@ -322,10 +348,15 @@ WORM only), KMS-backed attestation keys, and GLM-OCR fine-tuning.
 - **Structural chunking depends on region-map quality.** Stub regions are
   one box per page, so chunking is trivial offline; behaviour with real
   PP-DocLayoutV3 output is materially different and needs evaluation.
-- **LEANN index build unverified end-to-end.** API usage was checked against
-  the installed package and the degradation path is tested, but building a
-  real index requires downloading an embedding model, which the development
-  environment could not reach.
+- **LEANN index build unverified end-to-end.** The HuggingFace dependency is
+  gone, but LEANN also uses `tiktoken` to truncate inputs to the embedding
+  model's token limit, and the `cl100k_base` encoding is fetched from
+  `openaipublic.blob.core.windows.net` on first use — blocked by egress
+  policy in the development environment. API usage is verified against the
+  installed package and the degradation path is tested; a real index build
+  needs either that host allowed or a pre-seeded `TIKTOKEN_CACHE_DIR`. The
+  failure is diagnosed with the specific cause and fix rather than a bare
+  traceback.
 - **Retrieval indexes are rebuilt in memory at startup.** Fine to millions
   of chunks on one box; past that, dense retrieval needs pgvector or
   VectorChord doing the search in the database rather than in Python.
