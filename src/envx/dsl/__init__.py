@@ -1,4 +1,5 @@
 from .executor import EvidenceItem, ExecutionResult, PlanExecutor
+from .structured import CompiledFilter, FilterSyntaxError, compile_filter, parse_expression
 from .plan import (
     GraphPath,
     PlanValidationError,
@@ -9,7 +10,9 @@ from .plan import (
 )
 
 __all__ = [
+    "CompiledFilter",
     "EvidenceItem",
+    "FilterSyntaxError",
     "ExecutionResult",
     "GraphPath",
     "PlanExecutor",
@@ -17,5 +20,7 @@ __all__ = [
     "RetrievalPath",
     "RetrievalPlan",
     "load_plan",
+    "compile_filter",
+    "parse_expression",
     "plan_from_yaml",
 ]

@@ -163,3 +163,47 @@ def test_document_id_is_content_addressed(clean_db):
     with psycopg.connect(DSN) as conn:
         row = conn.execute("SELECT doc_id FROM documents").fetchone()
     assert str(row[0]) == result.doc_id
+
+
+def test_structured_filter_narrows_corpus(clean_db):
+    from envx.app import EnvxApp
+    from envx.dsl.plan import RetrievalPath, RetrievalPlan, Scope, StructuredFilter
+
+    inspection = b"""HOME INSPECTION REPORT
+
+Inspector observations: roof satisfactory.
+Systems evaluated include roof and electrical.
+"""
+    app = EnvxApp(config=_config(Path(tempfile.mkdtemp())))
+    app.ingest(content=DOC, filename="seller_disclosure_2024.pdf", client_id="ACME")
+    app.ingest(content=inspection, filename="home_inspection.pdf", client_id="ACME")
+
+    def run(where):
+        return app.query(
+            RetrievalPlan(
+                scope=Scope(client_id="ACME"),
+                structured_filter=StructuredFilter(where=where) if where else None,
+                paths=(RetrievalPath(kind="bm25", query="asbestos roof insulation"),),
+                top_k=20,
+            )
+        )
+
+    assert len(run(None).evidence) == 2
+    hit = run("$.hazards_disclosed[*].type IN ('asbestos')")
+    assert len(hit.evidence) == 1
+    assert hit.dropped_by_structured_filter == 1
+
+    # A filter matching nothing must return nothing, not fall back to the
+    # whole corpus.
+    miss = run("$.hazards_disclosed[*].type IN ('radon')")
+    assert miss.evidence == []
+
+    # AND requires both predicates satisfied by the same document.
+    assert len(run(
+        "$.hazards_disclosed[*].type = 'asbestos'"
+        " AND $.hazards_disclosed[*].severity = 'known'"
+    ).evidence) == 1
+    assert run(
+        "$.hazards_disclosed[*].type = 'asbestos'"
+        " AND $.hazards_disclosed[*].severity = 'suspected'"
+    ).evidence == []

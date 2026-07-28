@@ -579,6 +579,19 @@ class PostgresRepository:
             ).fetchone()
         return str(row[0]) if row else None
 
+    # -------------------------------------------------- structured filter
+    def filter_doc_ids(self, compiled) -> set[str]:
+        """Run a compiled structured filter, returning matching doc ids.
+
+        Path 5 of the retrieval stack. This narrows the corpus before the
+        other paths run, so a question like "environmental reports requiring
+        Phase II in Fairfield County" costs one indexed SQL query instead of
+        an embedding search over everything.
+        """
+        with self._connect() as conn:
+            rows = conn.execute(compiled.sql, compiled.params).fetchall()
+        return {str(r[0]) for r in rows}
+
     def apply_migrations(self, migration_dir) -> list[str]:
         from pathlib import Path
 

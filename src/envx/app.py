@@ -162,6 +162,7 @@ class EnvxApp:
             reranker=self.reranker,
             graph=self.graph,
             visual=self.visual,
+            repository=self.repo,
         )
 
     # ------------------------------------------------------------ ingest

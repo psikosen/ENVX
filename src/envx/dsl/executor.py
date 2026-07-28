@@ -25,6 +25,7 @@ from ..retrieval import (
 )
 from ..visual import VisualRetriever
 from .plan import RetrievalPlan
+from .structured import FilterSyntaxError, compile_filter
 
 
 @dataclass(frozen=True)
@@ -56,6 +57,7 @@ class ExecutionResult:
     dropped_low_confidence: int = 0
     dropped_missing_provenance: int = 0
     reranked: bool = False
+    dropped_by_structured_filter: int = 0
 
     @property
     def citations(self) -> list[dict[str, Any]]:
@@ -70,11 +72,34 @@ class PlanExecutor:
         reranker: Reranker | None = None,
         graph: KnowledgeGraph | None = None,
         visual: VisualRetriever | None = None,
+        repository: Any | None = None,
     ) -> None:
         self.retriever = retriever
         self.reranker = reranker
         self.graph = graph
         self.visual = visual
+        self.repository = repository
+
+    def _structured_prefilter(self, plan: RetrievalPlan) -> set[str] | None:
+        """Path 5. Returns allowed doc ids, or None when not applicable.
+
+        An empty set is meaningful and distinct from None: it means the
+        filter ran and nothing matched, so retrieval must return nothing
+        rather than silently falling back to the whole corpus.
+        """
+        sf = plan.structured_filter
+        if sf is None or self.repository is None:
+            return None
+        if not (sf.where or sf.or_where):
+            return None
+        compiled = compile_filter(
+            where=sf.where,
+            or_where=sf.or_where,
+            client_id=plan.scope.client_id,
+            matter_id=plan.scope.matter_id,
+            doc_types=plan.scope.doc_types,
+        )
+        return self.repository.filter_doc_ids(compiled)
 
     def execute(self, plan: RetrievalPlan) -> ExecutionResult:
         bm25_path = plan.path("bm25")
@@ -111,6 +136,8 @@ class PlanExecutor:
             confidence_gte=plan.scope.confidence_gte,
         )
 
+        allowed_docs = self._structured_prefilter(plan)
+
         hits = self.retriever.retrieve(
             query=bm25_path.query if bm25_path else query,
             dense_query=dense_path.query if dense_path else None,
@@ -121,6 +148,12 @@ class PlanExecutor:
             extra_paths=extra,
             soft_boost_markers=plan.soft_boost_markers,
         )
+
+        filtered_out = 0
+        if allowed_docs is not None:
+            before = len(hits)
+            hits = [h for h in hits if h.chunk.doc_id in allowed_docs]
+            filtered_out = before - len(hits)
 
         path_hits = {
             name: sum(1 for h in hits if name in h.per_path)
@@ -144,6 +177,7 @@ class PlanExecutor:
             dropped_low_confidence=dropped_conf,
             dropped_missing_provenance=dropped_prov,
             reranked=reranked,
+            dropped_by_structured_filter=filtered_out,
         )
 
     def _graph_path(self, plan: RetrievalPlan) -> PathResult:
