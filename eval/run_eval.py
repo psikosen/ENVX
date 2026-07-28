@@ -202,6 +202,50 @@ def check_isolation(args: argparse.Namespace) -> dict[str, object]:
     return {"queries_checked": len(QUERIES), "leaks": leaks}
 
 
+def preflight(args: argparse.Namespace) -> str | None:
+    """Check a configured endpoint answers before ingesting anything.
+
+    Without this, a server that is down surfaces as a connection traceback
+    partway through the run, after the corpus has already been ingested. The
+    common cause is running `ollama pull` before `ollama serve` — the pull
+    fails, the model was never fetched, and the error scrolls past.
+    """
+    if not args.embedding_url:
+        return None
+    import httpx
+
+    url = args.embedding_url.rstrip("/")
+    try:
+        response = httpx.post(
+            f"{url}/v1/embeddings",
+            json={"model": args.embedding_model, "input": ["preflight"]},
+            timeout=30,
+        )
+    except httpx.HTTPError as exc:
+        return (
+            f"cannot reach {url}: {exc}\n"
+            "  Is the server running? `ollama serve` must be up before "
+            "`ollama pull`."
+        )
+    if response.status_code >= 400:
+        body = response.text[:200]
+        hint = ""
+        if "not found" in body.lower() or response.status_code == 404:
+            hint = f"\n  Model {args.embedding_model!r} may not be pulled yet."
+        return f"{url} returned {response.status_code}: {body}{hint}"
+
+    try:
+        dim = len(response.json()["data"][0]["embedding"])
+    except (KeyError, IndexError, ValueError) as exc:
+        return f"{url} returned an unexpected embeddings payload: {exc}"
+    if dim != args.embedding_dim:
+        return (
+            f"{args.embedding_model} returns dim {dim} but --embedding-dim is "
+            f"{args.embedding_dim}. Set ENVX_EMBEDDING_DIM={dim}."
+        )
+    return None
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--embedding-url", default=None)
@@ -214,6 +258,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--tags", action="store_true", help="break results down by tag")
     args = parser.parse_args(argv)
+
+    problem = preflight(args)
+    if problem:
+        print(f"preflight failed: {problem}", file=sys.stderr)
+        return 2
 
     stats = corpus_stats()
     backend = args.embedding_url or f"local:{args.backend}"

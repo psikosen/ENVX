@@ -36,12 +36,21 @@ Every piece below is open weights or open source.
 **Ollama** — simplest to operate.
 
 ```bash
+# Start the server first — `ollama pull` is a client command and needs
+# something to talk to. On macOS and most Linux packages Ollama already
+# runs as a service, in which case skip straight to the pull.
+ollama serve &
+until curl -sf http://127.0.0.1:11434/api/tags >/dev/null; do sleep 1; done
+
 ollama pull bge-m3            # MIT, 8k context, multilingual
-ollama serve
+
 export ENVX_EMBEDDING_URL=http://127.0.0.1:11434
 export ENVX_EMBEDDING_MODEL=bge-m3
 export ENVX_EMBEDDING_DIM=1024
 ```
+
+Ollama exposes an OpenAI-compatible `/v1/embeddings`, so `ENVX_EMBEDDING_URL`
+points at the root and ENVX appends the path.
 
 **text-embeddings-inference** (HuggingFace, Apache-2.0) — faster, batches well.
 

@@ -94,7 +94,7 @@ src/envx/
 schemas/            5 doc-type KIE schemas (YAML + JSON Schema + marker rules)
 lexicon/hazards.yml counsel-reviewed vocabulary
 eval/               labeled corpus + evaluation harness
-tests/envx/         95 tests (7 skip without a database)
+tests/envx/         98 tests (7 skip without a database)
 ```
 
 ---

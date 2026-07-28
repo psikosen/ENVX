@@ -114,3 +114,78 @@ def test_lexicon_expansion_improves_ranking():
     runs = json.loads(output[output.index("{") :])["runs"]
     assert runs["bm25 + lexicon"]["mrr"] > runs["bm25 only"]["mrr"]
     assert runs["bm25 + lexicon"]["recall@1"] > runs["bm25 only"]["recall@1"]
+
+
+def test_preflight_reports_unreachable_endpoint():
+    """A down endpoint must be diagnosed, not surfaced as a traceback.
+
+    The usual cause is running `ollama pull` before `ollama serve` — the
+    pull fails, the model is never fetched, and without a preflight the
+    failure appears much later as a connection error mid-run.
+    """
+    proc = subprocess.run(
+        [
+            sys.executable, "eval/run_eval.py",
+            # Port chosen to be closed.
+            "--embedding-url", "http://127.0.0.1:9",
+            "--embedding-model", "bge-m3",
+            "--embedding-dim", "1024",
+        ],
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+        env={"PYTHONPATH": "src", "PATH": "/usr/bin:/bin:/usr/local/bin"},
+        timeout=300,
+    )
+    assert proc.returncode == 2
+    assert "preflight failed" in proc.stderr
+    assert "ollama serve" in proc.stderr
+
+
+def test_preflight_catches_dimension_mismatch():
+    """A dim mismatch must fail before ingesting, with the right value."""
+    from envx.devserver import dev_embedding_server
+
+    with dev_embedding_server(dim=512) as url:
+        proc = subprocess.run(
+            [
+                sys.executable, "eval/run_eval.py",
+                "--embedding-url", url,
+                "--embedding-model", "envx-dev-embedding",
+                "--embedding-dim", "1024",
+            ],
+            cwd=REPO,
+            capture_output=True,
+            text=True,
+            env={"PYTHONPATH": "src", "PATH": "/usr/bin:/bin:/usr/local/bin"},
+            timeout=300,
+        )
+    assert proc.returncode == 2
+    assert "returns dim 512" in proc.stderr
+    assert "ENVX_EMBEDDING_DIM=512" in proc.stderr
+
+
+def test_eval_runs_against_a_live_http_endpoint():
+    """The whole harness over HTTP, the way a real model would be used."""
+    import json
+
+    from envx.devserver import dev_embedding_server
+
+    with dev_embedding_server(dim=512) as url:
+        proc = subprocess.run(
+            [
+                sys.executable, "eval/run_eval.py", "--json",
+                "--embedding-url", url,
+                "--embedding-model", "envx-dev-embedding",
+                "--embedding-dim", "512",
+            ],
+            cwd=REPO,
+            capture_output=True,
+            text=True,
+            env={"PYTHONPATH": "src", "PATH": "/usr/bin:/bin:/usr/local/bin"},
+            timeout=600,
+        )
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    payload = json.loads(proc.stdout[proc.stdout.index("{") :])
+    assert payload["isolation"]["leaks"] == []
+    assert payload["runs"]["hybrid + lexicon"]["recall@5"] > 0.5

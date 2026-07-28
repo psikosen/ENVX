@@ -109,12 +109,23 @@ The harness takes any OpenAI-compatible endpoint, so a real measurement is
 one command away:
 
 ```bash
-ollama pull bge-m3 && ollama serve &
+# The server must be up before pulling — `ollama pull` is a client command
+# that talks to it. Skip this if Ollama already runs as a service.
+ollama serve &
+until curl -sf http://127.0.0.1:11434/api/tags >/dev/null; do sleep 1; done
+
+ollama pull bge-m3
+
 export ENVX_EMBEDDING_URL=http://127.0.0.1:11434
 export ENVX_EMBEDDING_MODEL=bge-m3
 export ENVX_EMBEDDING_DIM=1024
 PYTHONPATH=src python -m envx.cli eval --tags
 ```
+
+The harness preflights the endpoint before ingesting anything, so a
+server that is down or a model that was never pulled fails immediately with
+the cause rather than a connection traceback partway through the run. A
+dimension mismatch is reported with the value to set.
 
 Add a real cross-encoder to test the reranking claim properly:
 
