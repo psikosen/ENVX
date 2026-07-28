@@ -124,6 +124,8 @@ class LeannColdStore:
         self.index_path = Path(index_path)
         self.backend_name = backend_name
         self.embedding_model = embedding_model
+        self.searchable = True
+        self.build_error: str | None = None
         self._pending: list[ColdChunk] = []
         self._meta: dict[str, ColdChunk] = {}
         self._searcher = None
@@ -140,6 +142,14 @@ class LeannColdStore:
             self._pending.append(chunk)
 
     def build(self) -> None:
+        """Build the pruned graph over everything added so far.
+
+        LEANN downloads its embedding model on first build. If that fails —
+        air-gapped host, no model cache — we surface ``build_error`` and mark
+        the tier unsearchable rather than raising, because a cold-tier build
+        failure must not take down ingestion. The chunk inventory survives,
+        so documents remain enumerable and rehydratable by doc_id.
+        """
         if not self._pending:
             return
         from leann import LeannBuilder
@@ -147,26 +157,47 @@ class LeannColdStore:
         kwargs: dict[str, object] = {"backend_name": self.backend_name}
         if self.embedding_model:
             kwargs["embedding_model"] = self.embedding_model
-        builder = LeannBuilder(**kwargs)  # type: ignore[arg-type]
-        for chunk in self._meta.values():
-            # Metadata rides along so hits carry provenance without a second
-            # lookup — a cold hit still has to cite a document.
-            builder.add_text(
-                chunk.text,
-                metadata={
-                    "chunk_id": chunk.chunk_id,
-                    "doc_id": chunk.doc_id,
-                    "client_id": chunk.client_id,
-                    "matter_id": chunk.matter_id,
-                },
-            )
-        self.index_path.parent.mkdir(parents=True, exist_ok=True)
-        builder.build_index(str(self.index_path))
+        try:
+            builder = LeannBuilder(**kwargs)  # type: ignore[arg-type]
+            for chunk in self._meta.values():
+                # Metadata rides along so hits carry provenance without a
+                # second lookup — a cold hit still has to cite a document —
+                # and so client/matter filters can apply during traversal.
+                builder.add_text(
+                    chunk.text,
+                    metadata={
+                        "chunk_id": chunk.chunk_id,
+                        "doc_id": chunk.doc_id,
+                        "client_id": chunk.client_id,
+                        "matter_id": chunk.matter_id or "",
+                    },
+                )
+            self.index_path.parent.mkdir(parents=True, exist_ok=True)
+            builder.build_index(str(self.index_path))
+        except Exception as exc:  # noqa: BLE001 - degrade, never block ingest
+            self.build_error = f"{type(exc).__name__}: {exc}"
+            self.searchable = False
+            return
+        self.build_error = None
+        self.searchable = True
         self._pending.clear()
         self._searcher = None
         self._built = True
 
-    def search(self, query: str, *, top_k: int = 20) -> list[ColdSearchResult]:
+    def search(
+        self,
+        query: str,
+        *,
+        top_k: int = 20,
+        client_id: str | None = None,
+        matter_id: str | None = None,
+    ) -> list[ColdSearchResult]:
+        """Search the cold tier.
+
+        Client and matter isolation is pushed into LEANN's metadata filters
+        so it applies during traversal. Cold storage does not get to be a
+        loophole in tenant isolation.
+        """
         if not self._built:
             self.build()
         if not self._built:
@@ -175,23 +206,42 @@ class LeannColdStore:
             from leann import LeannSearcher
 
             self._searcher = LeannSearcher(str(self.index_path))
-        raw = self._searcher.search(query, top_k=top_k)
-        return [r for r in (self._to_result(item) for item in raw) if r is not None]
+
+        filters: dict[str, dict[str, object]] = {}
+        if client_id is not None:
+            filters["client_id"] = {"==": client_id}
+        if matter_id is not None:
+            filters["matter_id"] = {"==": matter_id}
+
+        raw = self._searcher.search(
+            query,
+            top_k=top_k,
+            metadata_filters=filters or None,
+        )
+        results = [r for r in (self._to_result(item) for item in raw) if r is not None]
+        # Defense in depth: if a backend ever ignores metadata_filters, drop
+        # anything out of scope rather than leaking it to the caller.
+        if client_id is not None:
+            results = [
+                r for r in results
+                if self._meta.get(r.chunk_id) is None
+                or self._meta[r.chunk_id].client_id == client_id
+            ]
+        return results
 
     def _to_result(self, item: object) -> ColdSearchResult | None:
         meta = getattr(item, "metadata", None) or {}
-        chunk_id = meta.get("chunk_id") if isinstance(meta, dict) else None
-        score = float(getattr(item, "score", 0.0) or 0.0)
-        text = str(getattr(item, "text", "") or "")
+        if not isinstance(meta, dict):
+            meta = {}
+        chunk_id = meta.get("chunk_id")
         if chunk_id is None:
             return None
         known = self._meta.get(chunk_id)
         return ColdSearchResult(
-            chunk_id=chunk_id,
-            doc_id=(meta.get("doc_id") if isinstance(meta, dict) else None)
-            or (known.doc_id if known else ""),
-            score=score,
-            text=text or (known.text if known else ""),
+            chunk_id=str(chunk_id),
+            doc_id=str(meta.get("doc_id") or (known.doc_id if known else "")),
+            score=float(getattr(item, "score", 0.0) or 0.0),
+            text=str(getattr(item, "text", "") or "") or (known.text if known else ""),
         )
 
     def doc_ids(self) -> set[str]:
