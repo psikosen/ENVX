@@ -109,6 +109,15 @@ python -m envx.cli migrate --print
 pytest tests/envx
 ```
 
+With Postgres, ingest and query become independent:
+
+```bash
+export ENVX_DATABASE_URL="postgresql://user@host/envx"
+python -m envx.cli migrate                     # apply DDL
+python -m envx.cli ingest docs/*.pdf --client ACME --matter M1
+python -m envx.cli query -q "asbestos" --client ACME   # no corpus needed
+```
+
 Everything runs offline on stub backends with no configuration. `doctor`
 reports which stages are stubbed and what to set to make each one live.
 
@@ -262,10 +271,17 @@ the two-person rule; tiering; drift sampling; durable job queue; CLI.
 LiteParse CLI, embeddings, reranker. Each has a working HTTP client; they
 need endpoints.
 
-**In-memory, pending Postgres:** BM25 and vector indexes, graph, review
-queue. The DDL exists in `db/migrations/`; the repository layer that binds
-Python to it does not. This is the largest remaining gap — indexes do not
-survive process exit, which is why `envx query` re-ingests its corpus.
+**Persisted to Postgres:** documents, pages, regions, blocks, extracted
+fields with per-field grounding verdicts, markers, and the schema registry.
+`ingest` and `query` run as separate processes; the retrieval index is
+rehydrated at startup. Verified against Postgres 16 — all migrations apply,
+and the two-person review CHECK, the append-only corrections trigger, and
+content-addressed dedup all reject violations at the database level.
+
+**Still in-memory:** graph, review queue, and entity resolver. The DDL for
+all three exists (`graph_edges`, `review_items`, `entity_canonical`); the
+repository methods do not. Retrieval and provenance survive a restart;
+multi-hop graph state does not.
 
 **Not started:** the review dashboard UI, S3 Object Lock (local filesystem
 WORM only), KMS-backed attestation keys, and GLM-OCR fine-tuning.
@@ -274,8 +290,12 @@ WORM only), KMS-backed attestation keys, and GLM-OCR fine-tuning.
 
 ## Known limitations
 
-- **No persistence across processes.** Everything in-memory. Postgres
-  repository layer is the top priority.
+- **Graph and review state are not persisted.** Retrieval, markers, and
+  provenance survive a restart; the knowledge graph and review queue are
+  rebuilt only by re-ingesting. This is the top remaining gap.
+- **Dense retrieval needs pgvector.** Without the extension, migration 004
+  skips `block_embeddings` and warns. Vectors are recomputed into memory at
+  startup, so retrieval still works — it just doesn't scale past RAM.
 - **Offline mode is not a quality signal.** Stub backends validate wiring.
 - **Structural chunking depends on region-map quality.** Stub regions are
   one box per page, so chunking is trivial offline; behaviour with real

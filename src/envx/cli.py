@@ -218,6 +218,20 @@ def cmd_migrate(args: argparse.Namespace) -> int:
     return 0
 
 
+def _pg_reachable(config) -> bool:
+    """Actually connect. A configured-but-unreachable database is worse than
+    an unconfigured one, because ingest would silently lose everything."""
+    from .db import PostgresRepository
+
+    if not config.database_url or not PostgresRepository.available():
+        return False
+    try:
+        PostgresRepository(config.database_url).document_count()
+    except Exception:
+        return False
+    return True
+
+
 def cmd_doctor(args: argparse.Namespace) -> int:
     from .coldstore import leann_available
     from .liteparse import liteparse_on_path
@@ -235,7 +249,7 @@ def cmd_doctor(args: argparse.Namespace) -> int:
         ("Embeddings", bool(config.embedding_url), "ENVX_EMBEDDING_URL", "hashing stub"),
         ("Reranker", bool(config.rerank_url), "ENVX_RERANK_URL", "lexical stub"),
         ("Cold tier (LEANN)", leann_available(), "pip install leann", "null store"),
-        ("Postgres", bool(config.database_url), "ENVX_DATABASE_URL", "in-memory only"),
+        ("Postgres", _pg_reachable(config), "ENVX_DATABASE_URL", "in-memory only"),
     ]
     width = max(len(name) for name, *_ in checks)
     print("ENVX backend status\n")
