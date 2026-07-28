@@ -32,7 +32,7 @@ from .enrichment import ContextualEnricher
 from .entities import EntityResolver
 from .glm_ocr import GLMOCRClient
 from .graph import KnowledgeGraph, build_graph_from_kie
-from .kie import KIEValidator
+from .kie import CRITICAL_PREFIXES, KIEValidator, compare_runs
 from .lexicon import Lexicon, load_lexicon
 from .liteparse import LiteParseResult, StubLiteParse
 from .markers import MarkerEngine
@@ -219,7 +219,11 @@ class EnvxApp:
 
         if schema is not None:
             kie_payload, validation_report, kie_run_id, markers = self._run_kie(
-                blob=blob, schema=schema, source_text=parsed.full_text, images=images
+                blob=blob,
+                schema=schema,
+                source_text=parsed.full_text,
+                images=images,
+                twin_run=self.config.twin_run_high_stakes and matter_is_active,
             )
 
         # 5. Structural chunking off the region map.
@@ -251,6 +255,9 @@ class EnvxApp:
             validation_report=validation_report,
             markers=[(m.code, m.confidence) for m in markers],
             parse_score=min((p.roundtrip_score for p in parsed.pages), default=1.0),
+            twin_run_disagreement=bool(
+                validation_report.get("twin_run", {}).get("critical_disagreements")
+            ),
         )
         state = ReviewState.TRUSTED
         if triggers or schema is None:
@@ -320,6 +327,7 @@ class EnvxApp:
         schema: DocSchema,
         source_text: str,
         images: list[Path],
+        twin_run: bool = False,
     ) -> tuple[dict[str, Any], dict[str, Any], str | None, list[Marker]]:
         response = self.glm.extract_kie(
             image_paths=images or [Path("page1.png")],
@@ -357,6 +365,26 @@ class EnvxApp:
         # verdict per field, which is what a reviewer needs to adjudicate.
         self._last_fields = list(outcome.result.fields)
         report = outcome.as_report()
+
+        # §2.5.4: twin-run agreement on high-stakes documents. Catches a
+        # model that is guessing even when its guess appears in the text,
+        # which grounding alone cannot detect.
+        if twin_run:
+            second = self.glm.extract_kie(
+                image_paths=images or [Path("page1.png")],
+                json_schema=schema.json_schema,
+                doc_type=schema.schema_id,
+            )
+            if second.parsed is not None:
+                twin = compare_runs(response.parsed, second.parsed)
+                critical = twin.high_severity_paths(critical_prefixes=CRITICAL_PREFIXES)
+                report["twin_run"] = twin.as_dict()
+                report["twin_run"]["critical_disagreements"] = critical
+                if critical:
+                    report.setdefault("review_reasons", []).append(
+                        "twin_run_disagreement"
+                    )
+                    report["needs_review"] = True
         markers = MarkerEngine(schema.marker_rules).evaluate(response.parsed)
         run_id = self.wet_store.record_kie_run(
             ref=blob,
