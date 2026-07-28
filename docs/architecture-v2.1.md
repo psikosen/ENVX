@@ -70,7 +70,7 @@ src/envx/
   classifier/       doc-type classification
   liteparse/        Tier A adapter (CLI bridge + stub)
   glm_ocr/          KIE, parsing, layout regions (+ stub)
-  kie/              schema validation, field grounding
+  kie/              schema validation, grounding, twin-run agreement
   schemas/          versioned schema loader
   markers/          declarative KIE-field -> marker rules
   chunking/         structural chunker
@@ -81,16 +81,17 @@ src/envx/
   graph/            knowledge graph
   visual/           late-interaction visual path
   coldstore/        LEANN-backed cold tier
-  dsl/              retrieval plan compiler + executor
+  dsl/              plan compiler, executor, structured filter (Path 5)
   review/           review states, triggers, correction log
   lifecycle/        hot/warm/cold tiering, drift sampling
   lexicon/          legal-domain vocabulary
   queue/            durable job queue
-  db/migrations/    001-005 Postgres DDL
+  db/migrations/    001-006 Postgres DDL
+  db/repository.py  Postgres persistence
 
 schemas/            5 doc-type KIE schemas (YAML + JSON Schema + marker rules)
 lexicon/hazards.yml counsel-reviewed vocabulary
-tests/envx/         54 tests
+tests/envx/         79 tests (7 skip without a database)
 ```
 
 ---
@@ -256,16 +257,39 @@ pages including contracts and insurance, which is far closer to this corpus
 than OmniDocBench's 6% enterprise coverage. Still run your own eval on your
 actual document mix before locking in a parser.
 
+### Structured filtering (Path 5)
+
+`structured_filter` compiles to a parameterised query over
+`extracted_fields` and narrows the corpus before retrieval runs. The
+predicate language is deliberately small — plans are authored by an LLM, and
+an LLM that can emit arbitrary SQL against a multi-client legal corpus is a
+security problem, not a feature.
+
+```yaml
+structured_filter:
+  where: "$.hazards_disclosed[*].type IN ('asbestos', 'acm')"
+  or: "$.recs[*] EXISTS"
+```
+
+Operators: `= != > >= < <= IN LIKE EXISTS`. Array wildcards match if any
+element satisfies the predicate. Two rejections are deliberate: mixing `AND`
+and `OR` in one expression (grouping changes the meaning, and guessing wrong
+on a hazard query is not an acceptable failure), and unparsed trailing
+content (applying only the parseable prefix would silently narrow the filter
+to something other than what was written).
+
 ---
 
 ## Implementation status
 
 **Working:** intake and WORM storage with Ed25519 attestations; doc-type
 classification; region maps; KIE with schema validation, field grounding,
-and citation enforcement; marker rules; structural chunking; entity
-canonicalization; contextual enrichment; BM25 + dense retrieval with RRF and
-reranking; knowledge graph; visual path; retrieval DSL; review workflow with
-the two-person rule; tiering; drift sampling; durable job queue; CLI.
+twin-run agreement, and citation enforcement; marker rules; structural
+chunking; entity canonicalization; contextual enrichment; BM25 + dense
+retrieval with RRF and reranking; structured metadata filtering over
+`extracted_fields` (Path 5); knowledge graph; visual path; retrieval DSL;
+review workflow with the two-person rule; tiering; drift sampling; durable
+job queue; CLI.
 
 **Stubbed, pending real backends:** GLM-OCR inference, document parsing,
 LiteParse CLI, embeddings, reranker. Each has a working HTTP client; they
@@ -278,10 +302,11 @@ rehydrated at startup. Verified against Postgres 16 — all migrations apply,
 and the two-person review CHECK, the append-only corrections trigger, and
 content-addressed dedup all reject violations at the database level.
 
-**Still in-memory:** graph, review queue, and entity resolver. The DDL for
-all three exists (`graph_edges`, `review_items`, `entity_canonical`); the
-repository methods do not. Retrieval and provenance survive a restart;
-multi-hop graph state does not.
+**Also persisted:** the knowledge graph, canonical entity identities, and
+the review queue. Canonical ids are stable across restarts, so a restart
+cannot fork one entity into two and break cross-document synthesis.
+Document identity is a deterministic UUIDv5 over the content hash, making
+the application id and the database primary key the same value.
 
 **Not started:** the review dashboard UI, S3 Object Lock (local filesystem
 WORM only), KMS-backed attestation keys, and GLM-OCR fine-tuning.
@@ -290,9 +315,6 @@ WORM only), KMS-backed attestation keys, and GLM-OCR fine-tuning.
 
 ## Known limitations
 
-- **Graph and review state are not persisted.** Retrieval, markers, and
-  provenance survive a restart; the knowledge graph and review queue are
-  rebuilt only by re-ingesting. This is the top remaining gap.
 - **Dense retrieval needs pgvector.** Without the extension, migration 004
   skips `block_embeddings` and warns. Vectors are recomputed into memory at
   startup, so retrieval still works — it just doesn't scale past RAM.
@@ -304,6 +326,8 @@ WORM only), KMS-backed attestation keys, and GLM-OCR fine-tuning.
   the installed package and the degradation path is tested, but building a
   real index requires downloading an embedding model, which the development
   environment could not reach.
-- **Twin-run KIE agreement (§2.5.4) is configurable but not implemented.**
-- **`structured_filter` (Path 5) parses but does not execute** — it needs
-  the Postgres layer to compile JSONPath predicates to SQL.
+- **Retrieval indexes are rebuilt in memory at startup.** Fine to millions
+  of chunks on one box; past that, dense retrieval needs pgvector or
+  VectorChord doing the search in the database rather than in Python.
+- **No incremental index update.** A re-ingest rewrites a document's rows,
+  but the in-memory index is only rebuilt on process start.
