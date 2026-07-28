@@ -25,6 +25,7 @@ from typing import Any
 from .chunking import Chunk, StructuralChunker
 from .classifier import Classification, DocTypeClassifier
 from .config import EnvxConfig, load_config
+from .db import DocumentRecord, PostgresRepository
 from .dsl import ExecutionResult, PlanExecutor, RetrievalPlan
 from .embedding import EmbeddingBackend, HashingEmbedding, HTTPEmbedding
 from .enrichment import ContextualEnricher
@@ -35,7 +36,7 @@ from .kie import KIEValidator
 from .lexicon import Lexicon, load_lexicon
 from .liteparse import LiteParseResult, StubLiteParse
 from .markers import MarkerEngine
-from .models import Marker, Region
+from .models import ExtractedField, Marker, Region
 from .queue import JobType, SQLiteJobQueue
 from .retrieval import (
     BM25Index,
@@ -146,6 +147,14 @@ class EnvxApp:
         self.jobs = SQLiteJobQueue()
         self.lexicon = lexicon if lexicon is not None else load_lexicon(config=self.config)
 
+        # Persistence is optional. Without it the app is a single-process
+        # demo; with it, ingest and query can run as separate invocations.
+        self._last_fields: list[ExtractedField] = []
+        self.repo: PostgresRepository | None = None
+        if self.config.database_url and PostgresRepository.available():
+            self.repo = PostgresRepository(self.config.database_url)
+            self._rehydrate()
+
         self.executor = PlanExecutor(
             retriever=self.retriever,
             reranker=self.reranker,
@@ -214,7 +223,7 @@ class EnvxApp:
         chunks = self.chunker.chunk(doc_id=doc_id, liteparse=parsed, regions=regions)
 
         # 6-8. Enrich, embed, index.
-        self._index(
+        indexed = self._index(
             chunks=chunks,
             kie_payload=kie_payload,
             doc_id=doc_id,
@@ -252,7 +261,7 @@ class EnvxApp:
             )
             state = item.state if triggers else ReviewState.NEEDS_HUMAN_REVIEW
 
-        return IngestResult(
+        result = IngestResult(
             doc_id=doc_id,
             blob_sha256=blob.sha256,
             classification=classification,
@@ -267,6 +276,17 @@ class EnvxApp:
             review_state=state,
             needs_review=state is not ReviewState.TRUSTED,
         )
+
+        self._persist(
+            result=result,
+            indexed=indexed,
+            schema=schema,
+            page_count=len(parsed.pages),
+            filename=filename,
+            client_id=client_id,
+            matter_id=matter_id,
+        )
+        return result
 
     def _rescue(
         self,
@@ -330,6 +350,9 @@ class EnvxApp:
         outcome = self.validator.validate(
             raw_json=response.parsed, schema=schema, source_text=source_text
         )
+        # Retained for persistence: extracted_fields rows carry the grounding
+        # verdict per field, which is what a reviewer needs to adjudicate.
+        self._last_fields = list(outcome.result.fields)
         report = outcome.as_report()
         markers = MarkerEngine(schema.marker_rules).evaluate(response.parsed)
         run_id = self.wet_store.record_kie_run(
@@ -365,9 +388,9 @@ class EnvxApp:
         doc_type: str,
         jurisdiction: str | None,
         markers: list[Marker],
-    ) -> None:
+    ) -> list[IndexedChunk]:
         if not chunks:
-            return
+            return []
         enrichments = {
             e.chunk_id: e.text_contextual
             for e in self.enricher.enrich(chunks, kie_payload=kie_payload)
@@ -408,6 +431,7 @@ class EnvxApp:
                     doc_type=doc_type,
                     visual_terms=[chunk.region_type, "signature", "seal"],
                 )
+        return indexed
 
     def _resolve_schema(self, doc_type: str) -> DocSchema | None:
         for candidate in (f"{doc_type}_ct", doc_type):
@@ -416,6 +440,75 @@ class EnvxApp:
             except SchemaNotFound:
                 continue
         return None
+
+    def _rehydrate(self) -> int:
+        """Rebuild the retrieval indexes from Postgres on startup.
+
+        Embeddings are recomputed rather than read back: the stored vectors
+        may have been produced by a different model version, and mixing model
+        versions in one index is silent recall loss (§4.3).
+        """
+        if self.repo is None:
+            return 0
+        rows = self.repo.load_index_rows()
+        if not rows:
+            return 0
+        vectors = self.embedder.embed([r.text_contextual for r in rows])
+        for row, vector in zip(rows, vectors):
+            self.bm25.add(row)
+            self.vectors.add(row, vector)
+        return len(rows)
+
+    def _persist(
+        self,
+        *,
+        result: IngestResult,
+        indexed: list[IndexedChunk],
+        schema: DocSchema | None,
+        page_count: int,
+        filename: str,
+        client_id: str,
+        matter_id: str | None,
+    ) -> None:
+        if self.repo is None:
+            return
+        if schema is not None:
+            self.repo.register_schema(
+                schema_id=schema.schema_id,
+                version=schema.version,
+                json_schema=schema.json_schema,
+                marker_rules=schema.marker_rules,
+                content_hash=schema.content_hash,
+            )
+        fields = [
+            {
+                "field_path": f.field_path,
+                "value": f.value,
+                "page_cited": f.page_cited,
+                "grounding_verified": f.grounding_verified,
+                "verification_score": f.verification_score,
+                "grounding_status": f.grounding_status.value,
+            }
+            for f in self._last_fields
+        ]
+        self.repo.save_document(
+            document=DocumentRecord(
+                sha256=result.blob_sha256,
+                client_id=client_id,
+                matter_id=matter_id,
+                doc_type=result.classification.doc_type,
+                doc_type_confidence=result.classification.confidence,
+                page_count=page_count,
+                original_filename=filename,
+            ),
+            chunks=result.chunks,
+            indexed=indexed,
+            regions=result.regions,
+            markers=result.markers,
+            extracted_fields=fields,
+            schema_ref=(schema.schema_id, schema.version) if schema else None,
+            kie_run_id=result.kie_run_id,
+        )
 
     # ------------------------------------------------------------- query
     def query(self, plan: RetrievalPlan) -> ExecutionResult:

@@ -36,6 +36,22 @@ class Region:
     region_id: str | None = None
 
 
+class GroundingStatus(str, Enum):
+    """Outcome of the field-grounding check.
+
+    ``NOT_APPLICABLE`` is distinct from ``FAILED`` on purpose. Schema
+    controlled vocabulary (doc_type, severity enums), booleans, and page
+    references are never checked against source text. Collapsing that into
+    "not verified" would make a reviewer unable to tell an untested field
+    from a hallucinated party, which is the exact judgement this column
+    exists to support.
+    """
+
+    VERIFIED = "verified"
+    FAILED = "failed"
+    NOT_APPLICABLE = "not_applicable"
+
+
 @dataclass(frozen=True)
 class ExtractedField:
     field_path: str
@@ -44,6 +60,7 @@ class ExtractedField:
     region_id: str | None = None
     grounding_verified: bool = False
     verification_score: float = 0.0
+    grounding_status: GroundingStatus = GroundingStatus.NOT_APPLICABLE
 
 
 @dataclass(frozen=True)

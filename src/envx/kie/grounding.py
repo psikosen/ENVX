@@ -17,7 +17,7 @@ from dataclasses import dataclass
 
 from rapidfuzz import fuzz
 
-from ..models import ExtractedField
+from ..models import ExtractedField, GroundingStatus
 
 _MULTI_WS = re.compile(r"\s+")
 _NON_ALNUM = re.compile(r"[^a-z0-9 ]+")
@@ -83,12 +83,31 @@ def ground_fields(
     ungrounded: list[str] = []
     for f in fields:
         if f.field_path in skip or not _should_check(f.field_path, f.value):
-            out.append(f)
+            out.append(
+                ExtractedField(
+                    field_path=f.field_path,
+                    value=f.value,
+                    page_cited=f.page_cited,
+                    region_id=f.region_id,
+                    grounding_verified=False,
+                    verification_score=0.0,
+                    grounding_status=GroundingStatus.NOT_APPLICABLE,
+                )
+            )
             continue
         checked += 1
         needle = normalize_for_match(str(f.value))
         if not needle:
-            out.append(f)
+            checked -= 1
+            out.append(
+                ExtractedField(
+                    field_path=f.field_path,
+                    value=f.value,
+                    page_cited=f.page_cited,
+                    region_id=f.region_id,
+                    grounding_status=GroundingStatus.NOT_APPLICABLE,
+                )
+            )
             continue
         score = 0.0
         if needle in haystack:
@@ -109,6 +128,9 @@ def ground_fields(
                 region_id=f.region_id,
                 grounding_verified=verified,
                 verification_score=round(score, 4),
+                grounding_status=(
+                    GroundingStatus.VERIFIED if verified else GroundingStatus.FAILED
+                ),
             )
         )
     return out, GroundingReport(

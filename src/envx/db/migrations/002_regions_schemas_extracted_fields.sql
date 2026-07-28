@@ -64,3 +64,16 @@ CREATE INDEX IF NOT EXISTS extracted_fields_schema_path_value_idx
     ON extracted_fields (schema_id, field_path, field_value_text);
 CREATE INDEX IF NOT EXISTS extracted_fields_json_gin
     ON extracted_fields USING gin (field_value_json);
+
+-- Grounding outcome is tri-state, not boolean. NOT_APPLICABLE (schema
+-- controlled vocabulary, booleans, page refs) must be distinguishable from
+-- FAILED (value absent from the source text) or a reviewer cannot tell an
+-- untested field from a hallucinated party — which is the judgement this
+-- column exists to support. grounding_verified is retained as a convenience
+-- for the common "is this trustworthy" filter.
+ALTER TABLE extracted_fields
+    ADD COLUMN IF NOT EXISTS grounding_status text NOT NULL DEFAULT 'not_applicable'
+        CHECK (grounding_status IN ('verified', 'failed', 'not_applicable'));
+
+CREATE INDEX IF NOT EXISTS extracted_fields_grounding_failed
+    ON extracted_fields (doc_id) WHERE grounding_status = 'failed';

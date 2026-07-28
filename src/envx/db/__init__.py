@@ -1,6 +1,10 @@
-"""Database-layer helpers.
+"""Database layer.
 
-SQL lives in ``migrations/`` as plain .sql files so they can be applied by
-any migration runner (psycopg, Alembic, sqlx). Nothing in Python depends on
-a specific driver yet.
+SQL lives in ``migrations/`` as plain .sql files so it can be applied by any
+runner (psycopg, Alembic, sqlx, psql). ``repository.py`` binds the pipeline
+objects to that schema; psycopg is an optional dependency.
 """
+
+from .repository import DocumentRecord, PostgresRepository, psycopg_available
+
+__all__ = ["DocumentRecord", "PostgresRepository", "psycopg_available"]

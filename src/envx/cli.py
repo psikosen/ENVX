@@ -63,11 +63,12 @@ def cmd_ingest(args: argparse.Namespace) -> int:
 
 
 def cmd_query(args: argparse.Namespace) -> int:
-    """Ingest the corpus then query it.
+    """Query the corpus.
 
-    The in-memory indexes don't persist between processes yet, so a query
-    needs its corpus in the same invocation. Pointing ENVX_DATABASE_URL at
-    Postgres is what removes this constraint.
+    With ENVX_DATABASE_URL set, the index is rehydrated from Postgres at
+    startup and no corpus argument is needed. Without it, everything is
+    in-memory, so any documents to search must be passed on the command line
+    and are ingested first.
     """
     app = _app()
     for raw_path in args.corpus:
@@ -80,6 +81,14 @@ def cmd_query(args: argparse.Namespace) -> int:
                 matter_id=args.matter,
                 extension=path.suffix.lstrip(".") or "pdf",
             )
+    if not len(app.bm25):
+        hint = (
+            "no documents in scope"
+            if app.repo is not None
+            else "no corpus given and no ENVX_DATABASE_URL set"
+        )
+        print(json.dumps({"query": args.query, "evidence": [], "note": hint}, indent=2))
+        return 0
 
     plan = RetrievalPlan(
         scope=Scope(
