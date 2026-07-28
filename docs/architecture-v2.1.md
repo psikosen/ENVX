@@ -92,7 +92,7 @@ src/envx/
 
 schemas/            5 doc-type KIE schemas (YAML + JSON Schema + marker rules)
 lexicon/hazards.yml counsel-reviewed vocabulary
-tests/envx/         85 tests (7 skip without a database)
+tests/envx/         88 tests (7 skip without a database)
 ```
 
 ---
@@ -165,6 +165,22 @@ Wire real backends before drawing conclusions about retrieval quality.
 | `ENVX_EMBEDDING_API_KEY` | — | bearer token, if the endpoint needs one |
 | `ENVX_GROUNDING_MIN_RATIO` | `0.85` | fuzzy match floor for grounding |
 | `ENVX_DATABASE_URL` | — | Postgres connection string |
+
+---
+
+## Deployment
+
+ENVX has no hard dependency on a commercial API. Every inference component
+speaks a documented HTTP protocol, so self-hosting open weights is
+configuration rather than code — which matters here, since sending
+client-confidential documents to a third-party API conflicts with many
+engagement terms.
+
+See [open-source-stack.md](./open-source-stack.md) for a fully open
+deployment: Ollama or TEI for embeddings, Infinity for reranking, vLLM for
+GLM-OCR and PaddleOCR-VL, PostgreSQL with pgvector, LEANN for the cold tier.
+It also carries the licence table — two components in common use are
+disqualifying for a commercial legal product and the defaults avoid both.
 
 ---
 
@@ -360,5 +376,6 @@ WORM only), KMS-backed attestation keys, and GLM-OCR fine-tuning.
 - **Retrieval indexes are rebuilt in memory at startup.** Fine to millions
   of chunks on one box; past that, dense retrieval needs pgvector or
   VectorChord doing the search in the database rather than in Python.
-- **No incremental index update.** A re-ingest rewrites a document's rows,
-  but the in-memory index is only rebuilt on process start.
+- **Retrieval quality is unmeasured.** Every component is wired and tested,
+  but no real embedding or KIE model has scored this corpus. Run ParseBench
+  and your own eval before trusting any ranking.

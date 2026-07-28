@@ -448,6 +448,12 @@ class EnvxApp:
             )
             for c in chunks
         ]
+        # Evict the previous parse before indexing this one. Chunk ids are
+        # content-addressed so unchanged chunks would upsert cleanly, but a
+        # re-parse producing fewer chunks would otherwise strand the extras.
+        self.bm25.remove_document(doc_id)
+        self.vectors.remove_document(doc_id)
+
         vectors = self.embedder.embed([c.text_contextual for c in indexed])
         for chunk, vector in zip(indexed, vectors):
             self.bm25.add(chunk)

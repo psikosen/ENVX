@@ -57,6 +57,13 @@ class VectorIndex:
         self._chunks.pop(chunk_id, None)
         self._vectors.pop(chunk_id, None)
 
+    def remove_document(self, doc_id: str) -> int:
+        """Evict every vector belonging to a document."""
+        stale = [cid for cid, chunk in self._chunks.items() if chunk.doc_id == doc_id]
+        for chunk_id in stale:
+            self.remove(chunk_id)
+        return len(stale)
+
     def search(
         self,
         query_vector: list[float],

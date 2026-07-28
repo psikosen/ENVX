@@ -175,3 +175,43 @@ def test_duplicate_ingest_is_deduplicated(app: EnvxApp):
     b = _ingest(app, DISCLOSURE, "seller_disclosure_copy.pdf")
     assert a.blob_sha256 == b.blob_sha256
     assert app.jobs.counts().get("pending") == 1
+
+
+def test_reingest_does_not_duplicate_evidence(app: EnvxApp):
+    """Re-ingesting a document must not multiply it in the index.
+
+    Chunk ids are content-addressed so an unchanged document upserts. Random
+    ids would surface the same passage repeatedly, which reads as
+    corroboration when it is duplication.
+    """
+    first = _ingest(app, DISCLOSURE, "seller_disclosure_2024.pdf")
+    for _ in range(2):
+        again = _ingest(app, DISCLOSURE, "seller_disclosure_2024.pdf")
+        assert [c.chunk_id for c in again.chunks] == [c.chunk_id for c in first.chunks]
+
+    assert len(app.bm25) == len(first.chunks)
+    assert len(app.vectors) == len(first.chunks)
+
+    plan = RetrievalPlan(
+        scope=Scope(client_id="ACME"),
+        paths=(RetrievalPath(kind="bm25", query="asbestos"),),
+        top_k=20,
+    )
+    evidence = app.query(plan).evidence
+    assert len({e.chunk_id for e in evidence}) == len(evidence)
+
+
+def test_reparse_with_fewer_chunks_evicts_stale(app: EnvxApp):
+    """A shorter re-parse must not strand orphans from the previous one."""
+    long_doc = DISCLOSURE + b"\n\nAdditional section about radon testing.\n"
+    _ingest(app, long_doc, "seller_disclosure_2024.pdf")
+    before = len(app.bm25)
+
+    short = b"RESIDENTIAL PROPERTY CONDITION DISCLOSURE REPORT\n\nSeller: Jane Roe.\n"
+    result = _ingest(app, short, "seller_disclosure_2024.pdf")
+    # Different content is a different document; the first must survive.
+    assert len(app.bm25) == before + len(result.chunks)
+
+    # Re-ingesting the same shorter bytes replaces rather than accumulates.
+    _ingest(app, short, "seller_disclosure_2024.pdf")
+    assert len(app.bm25) == before + len(result.chunks)

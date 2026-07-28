@@ -136,3 +136,27 @@ def test_devserver_rejects_malformed_requests(endpoint):
         empty = client.post(f"{endpoint}/rerank", json={"query": "x", "documents": []})
         assert empty.status_code == 200 and empty.json()["results"] == []
         assert client.get(f"{endpoint}/health").json()["status"] == "ok"
+
+
+def test_reranker_parses_every_server_envelope():
+    """Real servers disagree on the response shape; all must work.
+
+    TEI returns a bare list, Cohere/Voyage wrap in 'results', some wrap in
+    'data'. Getting this wrong silently zeroes every score and the reranker
+    becomes a no-op that still reports success.
+    """
+    from envx.retrieval.rerank import _parse_rerank_scores
+
+    expected = [0.1, 0.9]
+    assert _parse_rerank_scores(
+        [{"index": 1, "score": 0.9}, {"index": 0, "score": 0.1}], 2
+    ) == expected
+    assert _parse_rerank_scores(
+        {"results": [{"index": 1, "relevance_score": 0.9}, {"index": 0, "relevance_score": 0.1}]},
+        2,
+    ) == expected
+    assert _parse_rerank_scores(
+        {"data": [{"index": 1, "score": 0.9}, {"index": 0, "score": 0.1}]}, 2
+    ) == expected
+    # Out-of-range indices must not raise or corrupt neighbours.
+    assert _parse_rerank_scores([{"index": 99, "score": 1.0}], 2) == [0.0, 0.0]

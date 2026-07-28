@@ -61,6 +61,26 @@ def _hash(text: str, bbox: tuple[int, int, int, int] | None) -> str:
     return hashlib.sha256(f"{bbox}|{norm}".encode()).hexdigest()
 
 
+# Stable namespace for chunk ids. Constant, not configuration — changing it
+# re-identifies every chunk in the corpus.
+ENVX_CHUNK_NAMESPACE = uuid.UUID("2b7c4f10-8a55-5d2e-9f31-7c0a1b2d3e4f")
+
+
+def _chunk_id(doc_id: str, content_hash: str, ordinal: int) -> str:
+    """Derive a chunk id from its document, content, and position.
+
+    Content-addressed for the same reason doc_id is: re-ingesting a document
+    must produce the same ids so the index upserts instead of accumulating a
+    second copy of every passage. Random ids would make the same text appear
+    twice in evidence, which reads as corroboration when it is duplication.
+
+    The ordinal disambiguates genuinely identical text appearing more than
+    once in a document — repeated boilerplate is common in legal documents
+    and each occurrence is separately citable.
+    """
+    return str(uuid.uuid5(ENVX_CHUNK_NAMESPACE, f"{doc_id}:{content_hash}:{ordinal}"))
+
+
 def _containment(block: tuple[int, int, int, int], region: tuple[int, int, int, int]) -> float:
     """Fraction of ``block``'s area that falls inside ``region``.
 
@@ -112,6 +132,7 @@ def _split_long(text: str, max_chars: int) -> list[str]:
 class StructuralChunker:
     def __init__(self, *, max_chars: int = 2400) -> None:
         self.max_chars = max_chars
+        self._seen: dict[str, int] = {}
 
     def chunk(
         self,
@@ -120,6 +141,7 @@ class StructuralChunker:
         liteparse: LiteParseResult,
         regions: Iterable[Region],
     ) -> list[Chunk]:
+        self._seen: dict[str, int] = {}
         stamped = [_ensure_id(r) for r in regions]
         by_page: dict[int, list[Region]] = {}
         for r in stamped:
@@ -166,15 +188,18 @@ class StructuralChunker:
     ) -> Chunk:
         bbox = region.bbox if region else None
         rtype = region.region_type.value if region else RegionType.PARAGRAPH.value
+        content_hash = _hash(text, bbox)
+        ordinal = self._seen.get(content_hash, 0)
+        self._seen[content_hash] = ordinal + 1
         return Chunk(
-            chunk_id=str(uuid.uuid4()),
+            chunk_id=_chunk_id(doc_id, content_hash, ordinal),
             doc_id=doc_id,
             page_number=page_number,
             region_id=region.region_id if region else None,
             region_type=rtype,
             bbox=bbox,
             text=text,
-            content_hash=_hash(text, bbox),
+            content_hash=content_hash,
         )
 
     def _assign(self, block: PageBlock, regions: list[Region]) -> str | None:
